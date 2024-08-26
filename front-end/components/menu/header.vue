@@ -65,10 +65,10 @@ onBeforeUnmount(() => {
   
   <transition name="fade">
     <div v-if="showFilterDropdown" ref="filterDropdownRef" class="filter">
-      <div class="fblock1">Bugun</div>
-      <div class="fblock1">Bu hafta</div>
-      <div class="fblock1">Bu oy</div>
-      <div class="fblock1">Bu yil</div>
+      <div class="fblock1" type="button">Bugun</div>
+      <div class="fblock1" type="button">Bu hafta</div>
+      <div class="fblock1" type="button">Bu oy</div>
+      <div class="fblock1" type="button">Bu yil</div>
     </div>
   </transition>
 </template>
@@ -86,6 +86,9 @@ onBeforeUnmount(() => {
   width: 100%;
   padding: 0 20px;
   background-color: white;
+  -webkit-box-shadow: -1px 2px 9px -1px rgba(184,182,184,1);
+-moz-box-shadow: -1px 2px 9px -1px rgba(184,182,184,1);
+box-shadow: -1px 2px 9px -1px rgba(184,182,184,1);
 }
 .menu ul {
   display: flex;

@@ -1,4 +1,5 @@
 <template>
+  
   <MenuHeader />
   <div class="wrapper">
     <NuxtLayout>
@@ -7,6 +8,7 @@
   </div>
   <Menu />
 </template>
+
 <style scoped>
 .wrapper{
   max-width: 1920px;

@@ -1,10 +1,3 @@
-<script setup>
-
-
-
-
-</script>
-
 <template>
     <div class="pdrop">
         <div class="text-center text-gray-500">
@@ -52,7 +45,7 @@
     align-items: center;
     column-gap: 10px;
 }
-.pdrop div:hover{
+.pdrop div a:hover{
     color:  rgb(135, 245, 135);
 }
 </style>
