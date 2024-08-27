@@ -37,7 +37,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="menu">
+  <div class="menu no-print">
     <ul>
       <li class="logo">
         <NuxtLink to="/">

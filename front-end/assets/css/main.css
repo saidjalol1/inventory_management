@@ -11,3 +11,14 @@
 body{
     background-color: rgb(238, 238, 238);
 }
+@media print {
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .no-print {
+      display: none;
+    }
+    .print-only {
+      display: block;
+    }
+  }

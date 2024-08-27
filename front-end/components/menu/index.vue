@@ -1,5 +1,5 @@
 <template>
-    <div class="menu">
+    <div class="menu no-print">
         <ul>
             <li>
                 <NuxtLink to="/" active-class="active">

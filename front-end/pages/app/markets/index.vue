@@ -1,18 +1,30 @@
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const goToDetail = (index) => {
+  router.push(`/app/markets/${index}`);
+};
+const data = ref([
+    {name:"Andijon"},
+    {name:"Farg'ona"},
+    {name:"Buxoro"},
+    {name:"Jizzax"},
+    {name:"Qaraqalpaqstan"},
+    {name:"Qashqadaryo"},
+    {name:"Navoiy"},
+    {name:"Namangan"},
+    {name:"Samarqand"},
+    {name:"Sirdaryo"},
+    {name:"Surxondaryo"},
+    {name:"Toshkent"},
+])
+</script>
 <template>
     <div class="wrapper">
         <div class="grid grid-row-1 grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2">
-            <div class="card">Andijon</div>
-            <div class="card">Buxoro </div>
-            <div class="card">Farg'ona</div>
-            <div class="card">Jizzax </div>
-            <div class="card">Qaraqalpaqstan </div>
-            <div class="card">Qashqadaryo </div>
-            <div class="card">Navoiy </div>
-            <div class="card">Namangan </div>
-            <div class="card">Samarqand </div>
-            <div class="card">Sirdaryo</div>
-            <div class="card">Surxondaryo</div>
-            <div class="card">Toshkent</div>
+            <div v-for="(province, index) in data" :key="index" @click="goToDetail(index)" class="card">{{ province.name }}</div>
         </div>
     </div>
 </template>

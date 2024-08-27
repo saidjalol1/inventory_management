@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const sales = ref([
   { product: 'Product 1', quantity: 2, price: 100, total: 200, date: '2024-08-27' },
   { product: 'Product 2', quantity: 1, price: 150, total: 150, date: '2024-08-27' },
@@ -90,6 +92,9 @@ const closeModal = () => {
   showModal.value = false;
   selectedSale.value = null;
 };
+const goToDetail = (index) => {
+  router.push(`/app/sale/${index}`);
+};
 </script>
 
 <template>
@@ -109,11 +114,11 @@ const closeModal = () => {
       </thead>
       <tbody class="text-gray-700 rounded">
         <tr v-for="(sale, index) in paginatedSales" :key="index" class="hover:bg-green-100 border-b border-gray-200">
-          <td class="py-2 px-4 text-xs sm:py-3 sm:px-4 sm:text-sm">{{ sale.product }}</td>
-          <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm">{{ sale.quantity }}</td>
-          <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm">{{ sale.price }}</td>
-          <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm">{{ sale.total }}</td>
-          <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm">{{ sale.date }}</td>
+          <td  @click="goToDetail(index)" class="py-2 px-4 text-xs sm:py-3 sm:px-4 sm:text-sm">{{ sale.product }}</td>
+          <td  @click="goToDetail(index)" class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm">{{ sale.quantity }}</td>
+          <td  @click="goToDetail(index)" class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm">{{ sale.price }}</td>
+          <td  @click="goToDetail(index)" class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm">{{ sale.total }}</td>
+          <td  @click="goToDetail(index)" class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm">{{ sale.date }}</td>
           <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm">
             <div class="flex flex-col sm:flex-row">
               <button @click="editSale(sale)" class="text-gray-800 px-2 py-1 rounded mb-1 sm:mb-0 sm:mr-2 text-xs sm:text-sm">
