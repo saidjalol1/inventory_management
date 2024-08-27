@@ -1,0 +1,175 @@
+<template>
+    <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center z-50">
+      <!-- Modal overlay -->
+      <div class="fixed inset-0 bg-black opacity-50" @click="closeModal"></div>
+  
+      <!-- Modal content -->
+      <div class="relative bg-white p-6 rounded shadow-lg max-w-lg w-full" @click.stop>
+        <button @click="closeModal" class="absolute top-2 right-2 text-gray-600 hover:text-gray-800">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+        <h2 class="text-lg font-semibold mb-4">Add Sale</h2>
+        <form @submit.prevent="handleSubmit">
+          <div class="mb-4">
+            <label for="payment" class="block text-sm font-medium text-gray-700">Payment</label>
+            <input type="number" id="payment" v-model="sale.payment" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
+          </div>
+          <div class="mb-4">
+            <label for="province" class="block text-sm font-medium text-gray-700">Province</label>
+            <select id="province" v-model="selectedProvince" @change="fetchRegions" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
+              <option value="">Select Province</option>
+              <option v-for="province in provinces" :key="province.id" :value="province.id">
+                {{ province.name }}
+              </option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label for="region" class="block text-sm font-medium text-gray-700">Region</label>
+            <select id="region" v-model="selectedRegion" @change="fetchShops" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
+              <option value="">Select Region</option>
+              <option v-for="region in regions" :key="region.id" :value="region.id">
+                {{ region.name }}
+              </option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label for="shop" class="block text-sm font-medium text-gray-700">Shop</label>
+            <select id="shop" v-model="sale.shop" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
+              <option value="">Select Shop</option>
+              <option v-for="shop in shops" :key="shop.id" :value="shop.id">
+                {{ shop.name }}
+              </option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">QR Code Scan</label>
+            <div id="qr-reader" class="w-full h-48 border border-gray-300 rounded mt-1"></div>
+            <div class="mt-2">
+              <label class="block text-sm font-medium text-gray-700">Scanned Data</label>
+              <div v-for="(data, index) in scannedData" :key="index" class="mb-2">
+                <input type="text" :placeholder="'Scanned Data ' + (index + 1)" v-model="scannedData[index]" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end mt-4">
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Save Sale</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </template>
+  
+  <script setup>
+  import { ref, onMounted, nextTick, watch, onUnmounted } from 'vue';
+  import { Html5Qrcode } from 'html5-qrcode';
+  
+  // Modal state
+  const props = defineProps({
+    isOpen: Boolean
+  });
+  
+  const emit = defineEmits(['close']);
+  
+  const provinces = ref([]);
+  const regions = ref([]);
+  const shops = ref([]);
+  const selectedProvince = ref('');
+  const selectedRegion = ref('');
+  const sale = ref({
+    payment: '',
+    shop: ''
+  });
+  const scannedData = ref([]); // Array to hold scanned data
+  
+  // Fetch provinces (Replace with your API call)
+  const fetchProvinces = async () => {
+    // Mock data, replace with actual API call
+    provinces.value = [
+      { id: '1', name: 'Province 1' },
+      { id: '2', name: 'Province 2' }
+    ];
+  };
+  
+  // Fetch regions based on selected province (Replace with your API call)
+  const fetchRegions = async () => {
+    if (selectedProvince.value) {
+      // Mock data, replace with actual API call
+      regions.value = [
+        { id: '1', name: 'Region 1' },
+        { id: '2', name: 'Region 2' }
+      ];
+    }
+  };
+  
+  // Fetch shops based on selected region (Replace with your API call)
+  const fetchShops = async () => {
+    if (selectedRegion.value) {
+      // Mock data, replace with actual API call
+      shops.value = [
+        { id: '1', name: 'Shop 1' },
+        { id: '2', name: 'Shop 2' }
+      ];
+    }
+  };
+  
+  // Handle form submission
+  const handleSubmit = () => {
+    console.log('Sale Data:', { ...sale.value, province: selectedProvince.value, region: selectedRegion.value, scannedData: scannedData.value });
+    // Handle form submission logic
+    closeModal();
+  };
+  
+  // Close modal
+  const closeModal = () => {
+    emit('close');
+  };
+  
+  // Initialize QR code scanner
+  onMounted(() => {
+    nextTick(() => {
+      const qrCodeScanner = new Html5Qrcode("qr-reader");
+  
+      qrCodeScanner.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 }
+        },
+        (decodedText, decodedResult) => {
+          // Add scanned data to the array
+          scannedData.value.push(decodedText);
+        },
+        (errorMessage) => {
+          console.log(errorMessage);
+        }
+      ).catch((err) => {
+        console.error(err);
+      });
+  
+      // Cleanup
+      onUnmounted(() => {
+        qrCodeScanner.stop().then(() => {
+          qrCodeScanner.clear();
+        }).catch((err) => {
+          console.error(err);
+        });
+      });
+    });
+  });
+  
+  // Watch for changes to selectedProvince and selectedRegion to fetch related data
+  watch(selectedProvince, fetchRegions);
+  watch(selectedRegion, fetchShops);
+  
+  fetchProvinces();
+  </script>
+  
+  <style scoped>
+  #qr-reader {
+    height: 100%;
+    width: 100%;
+  }
+  </style>
+  

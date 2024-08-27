@@ -12,6 +12,7 @@
   "dependencies": {
     "apexcharts": "^3.52.0",
     "chart.js": "^4.4.4",
+    "html5-qrcode": "^2.3.8",
     "nuxt": "^3.13.0",
     "vue": "latest",
     "vue-chartjs": "^5.3.1",
