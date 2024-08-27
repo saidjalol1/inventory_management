@@ -61,7 +61,7 @@
   };
   </script>
 <template>
-    <div class=" t overflow-x-auto">
+    <div class=" t overflow-x-auto overflow-y-auto">
       <table class="min-w-full bg-white shadow-md rounded my-6">
         <thead>
           <tr class="bg-green-400 text-white text-left ">
