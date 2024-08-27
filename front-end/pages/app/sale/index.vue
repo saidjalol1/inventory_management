@@ -1,5 +1,6 @@
 <template>
-    <div>
-        Sotuv
+    <div class="wrapper">
+        <MenuFilter />
+        <Table />
     </div>
 </template>
