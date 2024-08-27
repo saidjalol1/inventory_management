@@ -3,8 +3,8 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 const showProfileDropdown = ref(false);
 const showFilterDropdown = ref(false);
-const profileDropdownRef = ref(null);
 const filterDropdownRef = ref(null);
+const profileDropdownRef = ref(null);
 
 const toggleProfileDropdown = (event) => {
   event.stopPropagation();
@@ -45,30 +45,17 @@ onBeforeUnmount(() => {
         </NuxtLink>
       </li>
       <li class="second">
-        <div class="filter-drop" @click="toggleFilterDropdown">
-          <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-funnel" viewBox="0 0 16 16">
-            <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z"/>
-          </svg>
-        </div>
         <li class="profile" @click="toggleProfileDropdown">
           <img src="/public/user-profile-icon-vector-avatar-600nw-2247726673.webp" alt="Profile">
         </li>
       </li>
     </ul>
+    
   </div>
   
   <transition name="fade">
     <div v-if="showProfileDropdown" ref="profileDropdownRef" class="pdrop">
       <DropdownsProfileDropDown />
-    </div>
-  </transition>
-  
-  <transition name="fade">
-    <div v-if="showFilterDropdown" ref="filterDropdownRef" class="filter">
-      <div class="fblock1" type="button">Bugun</div>
-      <div class="fblock1" type="button">Bu hafta</div>
-      <div class="fblock1" type="button">Bu oy</div>
-      <div class="fblock1" type="button">Bu yil</div>
     </div>
   </transition>
 </template>

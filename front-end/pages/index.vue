@@ -1,5 +1,26 @@
+<script setup>
+import { ref } from 'vue';
+
+const isSearchVisible = ref(false);
+const isFilterVisible = ref(false);
+
+const toggleSearch = () => {
+    isSearchVisible.value = !isSearchVisible.value;
+    if (isSearchVisible.value) {
+        isFilterVisible.value = false; // Hide filter when search is active
+    }
+};
+
+const toggleFilter = () => {
+    isFilterVisible.value = !isFilterVisible.value;
+    if (isFilterVisible.value) {
+        isSearchVisible.value = false; // Hide search when filter is active
+    }
+};
+</script>
 <template>
     <div class="wrapper">
+        <MenuFilter />
         <div class="grid grid-row-1 grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2">
             <div class="card1">
                 <div class="icon">
@@ -76,8 +97,8 @@
     border-radius: 10px;
     padding: 25px;
     -webkit-box-shadow: -1px 2px 9px -1px rgba(184,182,184,1);
--moz-box-shadow: -1px 2px 9px -1px rgba(184,182,184,1);
-box-shadow: -1px 2px 9px -1px rgba(184,182,184,1);
+    -moz-box-shadow: -1px 2px 9px -1px rgba(184,182,184,1);
+    box-shadow: -1px 2px 9px -1px rgba(184,182,184,1);
 }
 .icon span{
     width: 50px;
