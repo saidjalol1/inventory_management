@@ -93,10 +93,11 @@ const closeModal = () => {
 </script>
 
 <template>
-  <div class="t overflow-x-auto overflow-y-auto">
-    <table class="min-w-full bg-white shadow-md rounded my-6">
-      <thead>
-        <tr class="bg-green-400 text-white text-left">
+  
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white shadow-md rounded-xl my-6">
+      <thead class="rounded">
+        <tr class="bg-green-400 text-white text-left rounded">
           <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm uppercase font-semibold rounded-tl-xl">Ismi</th>
           <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm uppercase font-semibold">To'lov</th>
           <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm uppercase font-semibold">Qarz</th>
@@ -105,7 +106,7 @@ const closeModal = () => {
           <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm uppercase font-semibold rounded-tr-xl">Actions</th>
         </tr>
       </thead>
-      <tbody class="text-gray-700">
+      <tbody class="text-gray-700 rounded">
         <tr v-for="(sale, index) in paginatedSales" :key="index" class="hover:bg-green-100 border-b border-gray-200">
           <td class="py-2 px-4 text-xs sm:py-3 sm:px-4 sm:text-sm">{{ sale.product }}</td>
           <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm">{{ sale.quantity }}</td>
@@ -125,6 +126,7 @@ const closeModal = () => {
         </tr>
       </tbody>
     </table>
+    </div>
     <div class="paginate flex justify-between items-center mt-4">
       <button
         @click="prevPage"
@@ -153,32 +155,33 @@ const closeModal = () => {
     <div v-if="showModal" class="fixed inset-0 flex items-center justify-center z-50">
       <div class="fixed inset-0 bg-black opacity-50"></div>
       <div class="bg-white rounded-lg shadow-lg p-6 w-96 z-0">
-        <h3 class="text-lg font-semibold mb-4">Edit Payment</h3>
+        <h3 class="text-lg font-semibold mb-4">To'lov qo'shish</h3>
         <div class="mb-4">
-          <label for="quantity" class="block text-sm font-medium text-gray-700">Quantity</label>
+          <label for="quantity" class="block text-sm font-medium text-gray-700">To'lov</label>
           <input v-model="newQuantity" type="number" id="quantity" class="mt-1 p-2 w-full border rounded">
         </div>
         <div class="flex justify-end">
-          <button @click="closeModal" class="bg-gray-300 text-gray-700 px-4 py-2 rounded mr-2">Cancel</button>
-          <button @click="savePayment" class="bg-green-500 text-white px-4 py-2 rounded">Save</button>
+          <button @click="closeModal" class="bg-gray-300 text-gray-700 px-4 py-2 rounded mr-2">Yopish</button>
+          <button @click="savePayment" class="bg-green-500 text-white px-4 py-2 rounded">Saqlash</button>
         </div>
       </div>
       
     </div>
-  </div>
+
 </template>
 
 <style scoped>
-.t {
-  max-height: calc(100vh - 150px); /* Adjust based on the desired max height */
+.paginate{
+  margin-bottom: 200px;
+  padding: 0 20%;
 }
-
 .paginate button:disabled {
   cursor: not-allowed;
 }
 
 .paginate span {
   font-weight: bold;
+
 }
 
 button svg {

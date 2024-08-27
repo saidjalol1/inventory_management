@@ -86,8 +86,6 @@ const toggleFilter = () => {
     </div>
 </template>
 <style scoped>
-
-
 .card1{
     background-color: white;
     border-radius: 10px;
