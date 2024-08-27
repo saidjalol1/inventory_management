@@ -61,7 +61,7 @@
   };
   </script>
 <template>
-    <div class="overflow-x-auto">
+    <div class=" t overflow-x-auto">
       <table class="min-w-full bg-white shadow-md rounded my-6">
         <thead>
           <tr class="bg-green-400 text-white text-left ">
@@ -93,11 +93,7 @@
           </tr>
         </tbody>
       </table>
-  
-      
-    </div>
-    
-    <div class="paginate flex justify-between items-center mt-4">
+      <div class="paginate flex justify-between items-center mt-4">
         <button
           @click="prevPage"
           :disabled="currentPage === 1"
@@ -120,6 +116,10 @@
         </svg>
         </button>
     </div>
+      
+    </div>
+    
+    
     <button @click="openModal" class="plus text-gray-800 px-2 py-1 rounded mb-1 sm:mb-0 sm:mr-2 text-xs sm:text-sm">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
@@ -131,6 +131,10 @@
 
   
 <style scoped>
+.t{
+  display: flex;
+  flex-direction: column;
+}
   table{
     border-radius: 10px;
   }
@@ -139,12 +143,10 @@
   }
   .paginate{
     width: 100%;
-    position: absolute;
     display: flex;
     justify-content: center;
     column-gap: 50px;
-    bottom: 110px;
-    right: 10px;
+    margin-bottom: 80px;
   }
   .plus{
     width: 35px;

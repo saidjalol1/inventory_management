@@ -1,5 +1,6 @@
 <template>
-    <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center z-50">
+    <div class="wrapper">
+      <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center z-50">
       <div class="fixed inset-0 bg-black opacity-50" @click="closeModal"></div>
       <div class="relative bg-white p-6 rounded shadow-lg max-w-lg w-full" @click.stop>
         <button @click="closeModal" class="absolute top-2 right-2 text-gray-600 hover:text-gray-800">
@@ -7,14 +8,10 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
-        <h2 class="text-lg font-semibold mb-4">Add Sale</h2>
+        <h2 class="text-lg font-semibold mb-4">Sotuv Qo'shish +</h2>
         <form @submit.prevent="handleSubmit">
           <div class="mb-4">
-            <label for="payment" class="block text-sm font-medium text-gray-700">Payment</label>
-            <input type="number" id="payment" v-model="sale.payment" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
-          </div>
-          <div class="mb-4">
-            <label for="province" class="block text-sm font-medium text-gray-700">Province</label>
+            <label for="province" class="block text-sm font-medium text-gray-700">Viloyat</label>
             <select id="province" v-model="selectedProvince" @change="fetchRegions" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
               <option value="">Select Province</option>
               <option v-for="province in provinces" :key="province.id" :value="province.id">
@@ -23,7 +20,7 @@
             </select>
           </div>
           <div class="mb-4">
-            <label for="region" class="block text-sm font-medium text-gray-700">Region</label>
+            <label for="region" class="block text-sm font-medium text-gray-700">Rayon</label>
             <select id="region" v-model="selectedRegion" @change="fetchShops" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
               <option value="">Select Region</option>
               <option v-for="region in regions" :key="region.id" :value="region.id">
@@ -32,13 +29,17 @@
             </select>
           </div>
           <div class="mb-4">
-            <label for="shop" class="block text-sm font-medium text-gray-700">Shop</label>
+            <label for="shop" class="block text-sm font-medium text-gray-700">Klient</label>
             <select id="shop" v-model="sale.shop" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
               <option value="">Select Shop</option>
               <option v-for="shop in shops" :key="shop.id" :value="shop.id">
                 {{ shop.name }}
               </option>
             </select>
+          </div>
+          <div class="mb-4">
+            <label for="payment" class="block text-sm font-medium text-gray-700">To'lov</label>
+            <input type="number" id="payment" v-model="sale.payment" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">QR Code Scan</label>
@@ -58,6 +59,7 @@
           </div>
         </form>
       </div>
+    </div>
     </div>
   </template>
   
@@ -197,6 +199,7 @@
   #qr-reader-video{
     width: 250px;
     height: 250px;
+    margin: 0 auto;
   }
   </style>
   
