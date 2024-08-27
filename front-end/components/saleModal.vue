@@ -1,9 +1,6 @@
 <template>
     <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center z-50">
-      <!-- Modal overlay -->
       <div class="fixed inset-0 bg-black opacity-50" @click="closeModal"></div>
-  
-      <!-- Modal content -->
       <div class="relative bg-white p-6 rounded shadow-lg max-w-lg w-full" @click.stop>
         <button @click="closeModal" class="absolute top-2 right-2 text-gray-600 hover:text-gray-800">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -45,7 +42,10 @@
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">QR Code Scan</label>
-            <div id="qr-reader" class="w-full h-48 border border-gray-300 rounded mt-1"></div>
+            <div id="qr-reader-video"  class="w-full h-48 border border-gray-300 rounded mt-1"></div>
+            <button type="button" @click="toggleScanner" class="bg-blue-500 text-white px-4 py-2 rounded mt-2">
+              {{ scannerActive ? 'Stop Scanner' : 'Start Scanner' }}
+            </button>
             <div class="mt-2">
               <label class="block text-sm font-medium text-gray-700">Scanned Data</label>
               <div v-for="(data, index) in scannedData" :key="index" class="mb-2">
@@ -62,7 +62,7 @@
   </template>
   
   <script setup>
-  import { ref, onMounted, nextTick, watch, onUnmounted } from 'vue';
+  import { ref, onMounted, nextTick, onUnmounted, watch } from 'vue';
   import { Html5Qrcode } from 'html5-qrcode';
   
   // Modal state
@@ -82,10 +82,12 @@
     shop: ''
   });
   const scannedData = ref([]); // Array to hold scanned data
+  const scannerActive = ref(false); // State to manage QR code scanner
+  
+  let qrCodeScanner = null;
   
   // Fetch provinces (Replace with your API call)
   const fetchProvinces = async () => {
-    // Mock data, replace with actual API call
     provinces.value = [
       { id: '1', name: 'Province 1' },
       { id: '2', name: 'Province 2' }
@@ -95,7 +97,6 @@
   // Fetch regions based on selected province (Replace with your API call)
   const fetchRegions = async () => {
     if (selectedProvince.value) {
-      // Mock data, replace with actual API call
       regions.value = [
         { id: '1', name: 'Region 1' },
         { id: '2', name: 'Region 2' }
@@ -106,7 +107,6 @@
   // Fetch shops based on selected region (Replace with your API call)
   const fetchShops = async () => {
     if (selectedRegion.value) {
-      // Mock data, replace with actual API call
       shops.value = [
         { id: '1', name: 'Shop 1' },
         { id: '2', name: 'Shop 2' }
@@ -117,19 +117,23 @@
   // Handle form submission
   const handleSubmit = () => {
     console.log('Sale Data:', { ...sale.value, province: selectedProvince.value, region: selectedRegion.value, scannedData: scannedData.value });
-    // Handle form submission logic
     closeModal();
   };
   
-  // Close modal
-  const closeModal = () => {
-    emit('close');
+  // Toggle QR code scanner
+  const toggleScanner = () => {
+    if (scannerActive.value) {
+      stopScanner();
+    } else {
+      startScanner();
+    }
   };
   
-  // Initialize QR code scanner
-  onMounted(() => {
-    nextTick(() => {
-      const qrCodeScanner = new Html5Qrcode("qr-reader");
+  // Start QR code scanner
+  const startScanner = () => {
+    const qrReaderElement = document.getElementById("qr-reader-video");
+    if (qrReaderElement) {
+      qrCodeScanner = new Html5Qrcode("qr-reader-video");
   
       qrCodeScanner.start(
         { facingMode: "environment" },
@@ -138,7 +142,6 @@
           qrbox: { width: 250, height: 250 }
         },
         (decodedText, decodedResult) => {
-          // Add scanned data to the array
           scannedData.value.push(decodedText);
         },
         (errorMessage) => {
@@ -148,18 +151,42 @@
         console.error(err);
       });
   
-      // Cleanup
-      onUnmounted(() => {
-        qrCodeScanner.stop().then(() => {
-          qrCodeScanner.clear();
-        }).catch((err) => {
-          console.error(err);
-        });
+      scannerActive.value = true;
+    } else {
+      console.error("Element with ID 'qr-reader-video' not found.");
+    }
+  };
+  
+  // Stop QR code scanner
+  const stopScanner = () => {
+    if (qrCodeScanner) {
+      qrCodeScanner.stop().then(() => {
+        qrCodeScanner.clear();
+        scannerActive.value = false;
+      }).catch((err) => {
+        console.error(err);
       });
-    });
+    }
+  };
+  
+  // Close modal
+  const closeModal = () => {
+    stopScanner(); // Ensure the scanner is stopped when the modal closes
+    emit('close');
+  };
+  
+  onMounted(async () => {
+    await nextTick(); // Ensures that the DOM is updated
+    // Start the scanner only if it's active
+    if (scannerActive.value) {
+      startScanner();
+    }
   });
   
-  // Watch for changes to selectedProvince and selectedRegion to fetch related data
+  onUnmounted(() => {
+    stopScanner(); // Cleanup when the component is unmounted
+  });
+  
   watch(selectedProvince, fetchRegions);
   watch(selectedRegion, fetchShops);
   
@@ -167,9 +194,9 @@
   </script>
   
   <style scoped>
-  #qr-reader {
-    height: 100%;
-    width: 100%;
+  #qr-reader-video{
+    width: 250px;
+    height: 250px;
   }
   </style>
   
