@@ -29,14 +29,11 @@ const fetchRegions = async () => {
 const form1show = () =>{
     form1.value = !form1.value
     form2.value = false
-    span = document.getElementById("span1")
-    span.class = "color"
 }
 const form2show = () =>{
     form1.value = false
     form2.value = !form2.value
-    span = document.getElementById("span1")
-    span.class = "color"
+
 }
 
 fetchProvinces()
@@ -113,6 +110,7 @@ fetchProvinces()
             </div>
         </div>
     </div>
+  
 </template>
 <style scoped>
 .header{

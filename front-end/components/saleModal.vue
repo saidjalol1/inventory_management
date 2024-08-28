@@ -42,7 +42,7 @@
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">QR Code Scan</label>
-            <div id="qr-reader-video"  class="w-full h-48 border border-gray-300 rounded mt-1"></div>
+            <div id="qr-reader-video"  class="w-full h-48 border border-gray-300 rounded-lg mt-1"></div>
             <button type="button" @click="toggleScanner" class="bg-blue-500 text-white px-4 py-2 rounded mt-2">
               {{ scannerActive ? 'Stop Scanner' : 'Start Scanner' }}
             </button>
@@ -198,6 +198,10 @@
     width: 250px;
     height: 250px;
     margin: 0 auto;
+  }
+  video{
+    width: 100%;
+    height: 100%;
   }
   .modal{
     width: 400px;
