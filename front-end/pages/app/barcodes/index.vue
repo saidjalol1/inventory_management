@@ -1,5 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+const router = useRouter();
+const isAuthenticated = ref(false);
+
 
 const codes = ref([
   { code: 'Product 1', code_image: "jklj" },
@@ -86,6 +90,13 @@ const addQRCode = () => {
     closeModal(); // Close the modal after adding
   }
 };
+onMounted(() => {
+  isAuthenticated.value = localStorage.getItem('authenticated') === 'true';
+
+  if (!isAuthenticated.value) {
+    router.push('/login'); // Redirect to login if not authenticated
+  }
+});
 </script>
 
 

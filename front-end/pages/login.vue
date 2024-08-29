@@ -1,45 +1,48 @@
 <template>
     <div class="login-container">
       <div class="login-card">
-        <h1>Login</h1>
+        <h1 class="flex justify-center"><img src="public/favicon.ico" alt=""></h1>
         <form @submit.prevent="handleSubmit">
           <div class="input-group">
-            <label for="username">Username</label>
+            <label for="username">Foydalanuvchi nomi</label>
             <input
               v-model="username"
               type="text"
               id="username"
               required
-              placeholder="Enter your username"
             />
           </div>
           <div class="input-group">
-            <label for="password">Password</label>
+            <label for="password">Parol</label>
             <input
               v-model="password"
               type="password"
               id="password"
               required
-              placeholder="Enter your password"
             />
           </div>
-          <button type="submit">Login</button>
+          <button  type="submit">Kirish</button>
         </form>
       </div>
     </div>
   </template>
   
-  <script setup>
+<script setup>
   import { ref } from 'vue';
-  
-  const username = ref('');
-  const password = ref('');
-  
-  const handleSubmit = () => {
-    // Handle login logic here, like calling an API
-    console.log('Username:', username.value);
-    console.log('Password:', password.value);
-  };
+  import { useRouter } from 'vue-router';
+
+const username = ref('');
+const password = ref('');
+const router = useRouter();
+
+const handleSubmit = () => {
+  // Handle login logic here, e.g., check credentials with an API
+  // Assume login is successful
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('authenticated', 'true'); // Store authentication status
+  }
+  router.push('/'); // Redirect to the app
+};
   </script>
   
   <style scoped>
@@ -91,14 +94,14 @@
   }
   
   input:focus {
-    border-color: #007bff;
+    border-color: #00ff0d;
     outline: none;
   }
   
   button {
     width: 100%;
     padding: 0.75rem;
-    background-color: #007bff;
+    background-color: rgb(0,220,130);
     color: #ffffff;
     border: none;
     border-radius: 4px;
@@ -109,7 +112,7 @@
   }
   
   button:hover {
-    background-color: #0056b3;
+    background-color: rgb(0,220,130);
   }
   </style>
   

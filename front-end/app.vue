@@ -1,12 +1,22 @@
+<script setup>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+
+const isLoginPage = computed(() => {
+  return route.path === '/login';
+});
+</script>
 <template>
   
-  <MenuHeader />
+  <MenuHeader v-if="!isLoginPage"/>
   <div class="wrapper">
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
   </div>
-  <Menu />
+  <Menu v-if="!isLoginPage"/>
 </template>
 
 <style scoped>
