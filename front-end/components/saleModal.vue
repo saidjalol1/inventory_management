@@ -42,7 +42,7 @@
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">QR Code Scan</label>
-            <div id="qr-reader-video"  class="w-full h-48 border border-gray-300 rounded-lg mt-1"></div>
+            <div id="qr-reader-video"  class="qr-reader-container w-full h-48 border border-gray-300 rounded-lg mt-1"></div>
             <button type="button" @click="toggleScanner" class="bg-blue-500 text-white px-4 py-2 rounded mt-2">
               {{ scannerActive ? 'Stop Scanner' : 'Start Scanner' }}
             </button>
@@ -159,7 +159,7 @@
   
   // Stop QR code scanner
   const stopScanner = () => {
-    if (qrCodeScanner) {
+    if (qrCodeScanner && scannerActive.value) {
       qrCodeScanner.stop().then(() => {
         qrCodeScanner.clear();
         scannerActive.value = false;
@@ -194,11 +194,15 @@
   </script>
   
   <style scoped>
-  #qr-reader-video{
-    width: 250px;
-    height: 250px;
-    margin: 0 auto;
-  }
+  .qr-reader-container {
+  width: 100%; /* Full width, adjust as needed */
+  max-width: 300px; /* Set a maximum width */
+  height: auto; /* Maintain aspect ratio */
+  aspect-ratio: 4 / 3; /* Maintain a specific aspect ratio */
+  border: 2px solid #000; /* Optional: Add a border */
+  margin: 0 auto; /* Center the container */
+}
+
   video{
     width: 100%;
     height: 100%;

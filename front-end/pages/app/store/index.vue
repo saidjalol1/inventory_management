@@ -1,10 +1,11 @@
 <script setup>
 import { onMounted, ref } from "vue"
-
-const store = ref(false)
+import { Html5Qrcode } from 'html5-qrcode';
+const store = ref(true)
 const tranzactions = ref(false)
 const products = ref(false)
-const plusBtn = ref(false)
+const plusBtn = ref(true)
+
 const productAdd = ref(false)
 const storeAdd = ref(false)
 
@@ -12,15 +13,79 @@ const storeData = ref([])
 const tranzactionsData = ref([])
 const productsData = ref([])
 
+const scannedData = ref([]); // Array to hold scanned data
+const scannerActive = ref(false); // State to manage QR code scanner
+  
+let qrCodeScanner = null;
+
 const itemsPerPage = 10; // Number of items per page
 const currentPage = ref(1);
 
+const toggleScanner = () => {
+    if (scannerActive.value) {
+      stopScanner();
+    } else {
+      startScanner();
+    }
+  };
+
+  const startScanner = () => {
+    const qrReaderElement = document.getElementById("qr-reader-video");
+    if (qrReaderElement) {
+      qrCodeScanner = new Html5Qrcode("qr-reader-video");
+  
+      qrCodeScanner.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 }
+        },
+        (decodedText, decodedResult) => {
+          scannedData.value.push(decodedText);
+        },
+        (errorMessage) => {
+          console.log(errorMessage);
+        }
+      ).catch((err) => {
+        console.error(err);
+      });
+  
+      scannerActive.value = true;
+    } else {
+      console.error("Element with ID 'qr-reader-video' not found.");
+    }
+  };
+  
+  // Stop QR code scanner
+  const stopScanner = () => {
+    if (qrCodeScanner) {
+      qrCodeScanner.stop().then(() => {
+        qrCodeScanner.clear();
+        scannerActive.value = false;
+      }).catch((err) => {
+        console.error(err);
+      });
+    }
+  };
+  onMounted(async () => {
+    await nextTick(); // Ensures that the DOM is updated
+    // Start the scanner only if it's active
+    if (scannerActive.value) {
+      startScanner();
+    }
+  });
+  
+  onUnmounted(() => {
+    stopScanner(); // Cleanup when the component is unmounted
+  });
+const toggleStore = () =>{
+  store.value = !store.value
+  tranzactions.value = false
+  products.value = false
+  plusBtn.value = true
+}
 
 const fetchStore = () =>{
-    store.value = !store.value
-    plusBtn.value = true
-    tranzactions.value = false
-    products.value = false
     storeData.value = [
         {id: "4532",name:"nimadur",quantity:"34",base_price:"45000",sale_price:"35000",overall_price:"45000"},
         {id: "4532",name:"nimadur",quantity:"34",base_price:"45000",sale_price:"35000",overall_price:"45000"},
@@ -111,12 +176,14 @@ const closeModal = (modal) => {
         productAdd.value = !productAdd.value
     }
 };
+fetchStore()
 </script>
 <template>
 <div class="wrapper">
+  <MenuFilter />
         <div class="header  grid grid-row-1 grid-cols-3 justify-center">
             <div class="flex flex-col items-center justify-center gap-y-2">
-                <button @click="fetchStore" :class="{ color: store }" class="text-gray-500 text-center text-xs">Omborda</button>
+                <button @click="toggleStore" :class="{ color: store }" class="text-gray-500 text-center text-xs">Omborda</button>
                 <span class="navigate" v-if="store"></span>
             </div>
             <div class="flex flex-col items-center justify-center gap-y-2">
@@ -237,22 +304,23 @@ const closeModal = (modal) => {
         <div class="fixed inset-0 bg-black opacity-50"></div>
         <div class="bg-white rounded-lg shadow-lg p-6 w-96 z-0">
           <h3 class="text-lg font-semibold mb-4">Mahsulot Kiritish</h3>
+        <form>
           <div class="mb-4">
-            <label for="newName" class="block text-sm font-medium text-gray-700">Nomi</label>
-            <input type="text" id="newName" class="mt-1 p-2 w-full border rounded">
+            <div id="qr-reader-video"  class="qr-reader-container w-full h-48 border border-gray-300 rounded-lg mt-1"></div>
+            <button type="button" @click="toggleScanner" class="bg-blue-500 text-white px-4 py-2 rounded mt-2">
+              {{ scannerActive ? 'To\'tatish' : 'Skayner boshlash' }}
+            </button>
+            <div class="mt-2">
+              <label class="block text-sm font-medium text-gray-700">Skaynerlanganlar</label>
+              <div v-for="(data, index) in scannedData" :key="index" class="mb-2">
+                <input type="text" :placeholder="'Scanned Data ' + (index + 1)" v-model="scannedData[index]" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
+              </div>
+            </div>
           </div>
-          <div class="mb-4">
-            <label for="newAmount" class="block text-sm font-medium text-gray-700">Tan Narxi</label>
-            <input  type="number" id="newAmount" class="mt-1 p-2 w-full border rounded">
+          <div class="flex justify-end mt-4">
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">saqlash</button>
           </div>
-          <div class="mb-4">
-            <label for="newDate" class="block text-sm font-medium text-gray-700">Sotuv Narxi</label>
-            <input  type="Number" id="newDate" class="mt-1 p-2 w-full border rounded">
-          </div>
-          <div class="flex justify-end">
-            <button @click="saveNewExpense" class="bg-green-500 text-white px-4 py-2 rounded mr-2">Saqlash</button>
-            <button @click="closeModal(1)" class="bg-gray-300 text-gray-700 px-4 py-2 rounded">Yopish</button>
-          </div>
+        </form>
         </div>
     </div>
     <button v-if="plusBtn" @click="openModal" class="plus text-gray-800 px-2 py-1 rounded mb-1 sm:mb-0 sm:mr-2 text-xs sm:text-sm">
@@ -263,6 +331,14 @@ const closeModal = (modal) => {
 </div>
 </template>
 <style scoped>
+.qr-reader-container {
+  width: 100%; /* Full width, adjust as needed */
+  max-width: 300px; /* Set a maximum width */
+  height: auto; /* Maintain aspect ratio */
+  aspect-ratio: 4 / 3; /* Maintain a specific aspect ratio */
+  border: 2px solid #000; /* Optional: Add a border */
+  margin: 0 auto; /* Center the container */
+}
 .header{
     width: 100%;
 }

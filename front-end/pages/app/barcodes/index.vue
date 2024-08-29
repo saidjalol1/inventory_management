@@ -152,7 +152,6 @@ const addQRCode = () => {
         </svg>
     </button>
   <!-- Modal for adding QR codes -->
-  <transition name="fade" @before-enter="beforeEnter" @enter="enter" @leave="leave">
     <div v-if="showModal" class="fixed inset-0 flex items-center justify-center z-50">
       <div class="modal-overlay absolute inset-0 bg-gray-600 bg-opacity-75"></div>
       <div class="modal-container bg-white p-6 rounded-lg shadow-lg z-10">
@@ -196,7 +195,6 @@ const addQRCode = () => {
         </form>
       </div>
     </div>
-  </transition>
 </template>
 
 
