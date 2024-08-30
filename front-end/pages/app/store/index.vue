@@ -1,6 +1,19 @@
 <script setup>
 import { onMounted, ref } from "vue"
 import { Html5Qrcode } from 'html5-qrcode';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+let isAuthenticated = ref("");
+
+onMounted(() => {
+    isAuthenticated = localStorage.getItem('authToken');
+    
+    if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
+        router.push('/login'); // Redirect to login if not authenticated
+    }
+});
+
 const store = ref(true)
 const tranzactions = ref(false)
 const products = ref(false)

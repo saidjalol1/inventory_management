@@ -1,6 +1,18 @@
 <script setup>
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+let isAuthenticated = ref("");
+
+onMounted(() => {
+    isAuthenticated = localStorage.getItem('authToken');
+    
+    if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
+        router.push('/login'); // Redirect to login if not authenticated
+    }
+});
 
 const route = useRoute()
 const saleId = route.params.id

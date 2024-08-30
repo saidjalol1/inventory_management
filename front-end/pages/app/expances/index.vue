@@ -1,5 +1,17 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+let isAuthenticated = ref("");
+
+onMounted(() => {
+    isAuthenticated = localStorage.getItem('authToken');
+    
+    if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
+        router.push('/login'); // Redirect to login if not authenticated
+    }
+});
 
 const expenses = ref([
   { name: 'Expense 1', amount: 2, date: '2024-08-27' },

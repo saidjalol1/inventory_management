@@ -1,5 +1,18 @@
 <script setup>
 import { ref, onMounted, nextTick, onUnmounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+let isAuthenticated = ref("");
+
+onMounted(() => {
+    isAuthenticated = localStorage.getItem('authToken');
+    
+    if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
+        router.push('/login'); // Redirect to login if not authenticated
+    }
+});
+
 
 const provinces = ref([]);
 const regions = ref([]);

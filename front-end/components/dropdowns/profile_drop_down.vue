@@ -1,10 +1,21 @@
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+
+const logout = async () =>{
+    localStorage.removeItem('authToken');
+    await router.push('/login')
+}
+</script>
 <template>
     <div class="pdrop">
         <div class="text-center text-gray-500">
             Saidjalol
         </div>
         <div>
-            <NuxtLink to="/">
+            <NuxtLink @click.prevent="logout">
                 <span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
@@ -15,7 +26,7 @@
             </NuxtLink>
         </div>
         <div>
-           <NuxtLink to="/">
+           <NuxtLink to="https://t.me/saidjalol0">
             <span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>

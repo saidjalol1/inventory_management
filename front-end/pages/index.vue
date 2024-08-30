@@ -1,5 +1,13 @@
 <script setup>
 import { ref } from 'vue';
+import { config } from 'config';
+
+import { useRouter } from 'vue-router';
+const router = useRouter();
+let isAuthenticated = ref("");
+
+const base = config.baseUrl;
+console.log(base)
 
 const isSearchVisible = ref(false);
 const isFilterVisible = ref(false);
@@ -17,6 +25,26 @@ const toggleFilter = () => {
         isSearchVisible.value = false; // Hide search when filter is active
     }
 };
+async function fetchData() {
+  try {
+    const response = await fetch(`${base}/`)
+    if (!response.ok) {
+      throw new Error('Network response was not ok')
+    }
+    const data = await response.json()
+    console.log(data)
+  } catch (error) {
+    console.error('Error fetching data:', error)
+  }
+}
+onMounted(() => {
+    isAuthenticated = localStorage.getItem('authToken');
+    
+    if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
+        router.push('/login'); // Redirect to login if not authenticated
+    }
+});
+fetchData()
 </script>
 <template>
     <div class="wrapper">

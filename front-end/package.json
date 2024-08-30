@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxtjs/axios": "^5.13.6",
     "apexcharts": "^3.52.0",
     "chart.js": "^4.4.4",
     "html5-qrcode": "^2.3.8",

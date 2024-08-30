@@ -8,6 +8,7 @@ export default defineNuxtConfig({
   },
   alias : {
     "@": resolve(__dirname, "/"),
+    "config": resolve(__dirname,"config.js")
   },
   css: ['~/assets/css/main.css'],
   postcss: {

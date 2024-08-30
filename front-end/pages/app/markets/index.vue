@@ -2,7 +2,17 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
+let isAuthenticated = ref("");
 const router = useRouter();
+onMounted(() => {
+    isAuthenticated = localStorage.getItem('authToken');
+    
+    if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
+        router.push('/login'); // Redirect to login if not authenticated
+    }
+});
+
+
 const goToDetail = (index) => {
   router.push(`/app/markets/${index}`);
 };

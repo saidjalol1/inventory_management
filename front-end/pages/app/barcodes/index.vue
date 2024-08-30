@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 const router = useRouter();
-const isAuthenticated = ref(false);
+let isAuthenticated = ref(false);
 
 
 const codes = ref([
@@ -91,11 +91,11 @@ const addQRCode = () => {
   }
 };
 onMounted(() => {
-  isAuthenticated.value = localStorage.getItem('authenticated') === 'true';
-
-  if (!isAuthenticated.value) {
-    router.push('/login'); // Redirect to login if not authenticated
-  }
+    isAuthenticated = localStorage.getItem('authToken');
+    
+    if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
+        router.push('/login'); // Redirect to login if not authenticated
+    }
 });
 </script>
 

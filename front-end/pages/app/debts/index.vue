@@ -3,6 +3,16 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+let isAuthenticated = ref("");
+
+onMounted(() => {
+    isAuthenticated = localStorage.getItem('authToken');
+    
+    if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
+        router.push('/login'); // Redirect to login if not authenticated
+    }
+});
+
 const sales = ref([
   { product: 'Product 1', quantity: 2, price: 100, total: 200, date: '2024-08-27' },
   { product: 'Product 2', quantity: 1, price: 150, total: 150, date: '2024-08-27' },
