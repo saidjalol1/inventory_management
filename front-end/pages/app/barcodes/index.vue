@@ -1,26 +1,112 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick, onUpdated } from 'vue';
 import { useRouter } from 'vue-router';
+import { config } from "config"
+
+const base = config.baseUrl
+
 const router = useRouter();
 let isAuthenticated = ref(false);
-
-
-const codes = ref([
-  { code: 'Product 1', code_image: "jklj" },
-  { code: 'Product 2', code_image: "hkj" }
-]);
-
 const itemsPerPage = 10; // Number of items per page
 const currentPage = ref(1);
-
+const error = ref("")
 const showModal = ref(false); // Modal visibility
-const newQRCode = ref({ code: '', code_image: '' }); // New QR code data
+const codes = ref([]);
+const new_codes = ref("");
+const searchQuery = ref("")
 
+
+const fetchCodes = async () => {
+    try {
+    const response = await fetch(`${base}/qrcode/get/all`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+
+    if (!response.ok) {
+      console.log("Error status:", response.status);
+      error.value =  await response.text()
+      return; // Exit function if response is not OK
+    }
+
+    const data = await response.json();
+    codes.value = data
+    console.log(data)
+  } catch (error) {
+    console.error(error);
+    error.value = error
+  }
+};
+
+const addQRCode = async (event) => {
+  event.preventDefault(); 
+    try {
+    const response = await fetch(`${base}/qrcode/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${isAuthenticated}`
+      },
+      body: JSON.stringify({
+        number: new_codes.value,
+      })
+    });
+
+    if (!response.ok) {
+      console.log("Error status:", response.status);
+      error.value =  await response.text()
+      return; // Exit function if response is not OK
+    }
+    const data = await response.json();
+    if (!data.error){
+        new_codes.value = ""
+    }
+    await fetchCodes()
+    console.log(data)
+    error.value = data.error
+  } catch (error) {
+    console.error(error);
+    error.value = error
+  }
+};
+
+const deleteCode = async (code_id) => {
+    try {
+    const response = await fetch(`${base}/qrcode/delete/${code_id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${isAuthenticated}`
+      },
+    });
+
+    if (!response.ok) {
+      console.log("Error status:", response.status);
+      error.value =  await response.text()
+      return; // Exit function if response is not OK
+    }
+    await fetchCodes()
+  } catch (error) {
+    console.error(error);
+    error.value = error
+  }
+};
+
+const filteredCodes = computed(() => {
+  if (!searchQuery.value) {
+    return codes.value;
+  }
+  return codes.value.filter(code =>
+    code.number.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
 // Compute paginated codes
 const paginatedCodes = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
-  return codes.value.slice(start, end);
+  return filteredCodes.value.slice(start, end);
 });
 
 // Compute total number of pages
@@ -36,13 +122,6 @@ const prevPage = () => {
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value += 1;
-  }
-};
-
-const deleteCode = (codeToDelete) => {
-  const index = codes.value.findIndex((code) => code.code === codeToDelete.code);
-  if (index !== -1) {
-    codes.value.splice(index, 1);
   }
 };
 
@@ -64,7 +143,7 @@ const printCode = (index) => {
       </head>
       <body>
         <div class="container">
-          <img src="${code.code_image}" alt="Code Image" />
+          <img src="${base}/${code.qr_code_image}" alt="Code Image" />
         </div>
       </body>
       </html>
@@ -75,27 +154,25 @@ const printCode = (index) => {
   }
 };
 
-const openModal = () => {
+const openModal = async () => {
   showModal.value = true;
+  await fetchCodes()
 };
 
-const closeModal = () => {
+const closeModal = async () => {
   showModal.value = false;
+  await fetchCodes()
 };
 
-const addQRCode = () => {
-  if (newQRCode.value.code && newQRCode.value.code_image) {
-    codes.value.push({ ...newQRCode.value });
-    newQRCode.value = { code: '', code_image: '' }; // Reset newQRCode
-    closeModal(); // Close the modal after adding
-  }
-};
-onMounted(() => {
+
+onMounted( async () => {
     isAuthenticated = localStorage.getItem('authToken');
     
     if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
         router.push('/login'); // Redirect to login if not authenticated
     }
+    await nextTick()
+    fetchCodes()
 });
 </script>
 
@@ -103,7 +180,8 @@ onMounted(() => {
 <template>
 
   <div class="overflow-x-auto wrapper">
-    <MenuFilter />
+    <MenuFilter v-model="searchQuery"/>
+    <div><p class="text-center text-red-600">{{ error }}</p></div>
     <table class="min-w-full bg-white shadow-md rounded-xl my-6">
       <thead class="rounded">
         <tr class="bg-green-400 text-white text-left rounded">
@@ -114,9 +192,9 @@ onMounted(() => {
       </thead>
       <tbody class="text-gray-700 rounded">
         <tr v-for="(code, index) in paginatedCodes" :key="index" class="hover:bg-green-100 border-b border-gray-200">
-          <td class="py-2 px-4 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ code.code }}</td>
+          <td class="py-2 px-4 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ code.number }}</td>
           <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">
-            <button @click="printCode(index)" aria-label="Print Code">
+            <button @click="printCode(code.id)" aria-label="Print Code">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-printer" viewBox="0 0 16 16">
                 <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
                 <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/>
@@ -124,7 +202,7 @@ onMounted(() => {
             </button>
           </td>
           <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">
-            <button @click="deleteCode(code)" aria-label="Delete Code">
+            <button @click="deleteCode(code.id)" aria-label="Delete Code">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-archive" viewBox="0 0 16 16">
                 <path d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5zm13-3H1v2h14zM5 7.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/>
               </svg>
@@ -145,7 +223,7 @@ onMounted(() => {
         <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 0 0-.707-.707l-4 4a.5.5 0 0 0 0 .707l4 4a.5.5 0 0 0 .707-.707L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
       </svg>
     </button>
-    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <span>{{ currentPage }} / {{ totalPages }}</span>
     <button
       @click="nextPage"
       :disabled="currentPage === totalPages"
@@ -171,19 +249,9 @@ onMounted(() => {
           <div class="mb-4">
             <label for="code" class="block text-sm font-medium text-gray-700">Seriya raqam</label>
             <input
-              v-model="newQRCode.code"
+              v-model="new_codes"
               type="text"
               id="code"
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-opacity-50"
-              required
-            />
-          </div>
-          <div class="mb-4">
-            <label for="code_image" class="block text-sm font-medium text-gray-700">Code Image URL</label>
-            <input
-              v-model="newQRCode.code_image"
-              type="text"
-              id="code_image"
               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-opacity-50"
               required
             />

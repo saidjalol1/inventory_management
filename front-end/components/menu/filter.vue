@@ -1,6 +1,18 @@
 <script setup>
 import { ref } from 'vue';
 
+const props = defineProps({
+  modelValue: String,
+});
+
+const emit = defineEmits(['update:modelValue']);
+const search = ref(props.modelValue || '');
+
+// Emit the search query back to the parent
+const onInput = () => {
+  emit('update:modelValue', search.value);
+};
+
 const isSearchVisible = ref(false);
 const isFilterVisible = ref(false);
 
@@ -25,7 +37,7 @@ const toggleFilter = () => {
                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
                 </svg>
             </div>
-            <input v-if="isSearchVisible" type="text" class="search-input" placeholder="Qidiruv..."/>
+            <input v-if="isSearchVisible"  v-model="search"  @input="onInput" type="text" class="search-input" placeholder="Qidiruv..."/>
             <div class="filter-drop" >
                 <button @click="toggleFilter">
                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-funnel" viewBox="0 0 16 16">

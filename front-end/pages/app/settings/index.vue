@@ -198,7 +198,6 @@ onMounted( async () => {
                     </div>
                     <div class="flex justify-end">
                         <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded mr-2">Saqlash</button>
-                        <button @click="closeModal" class="bg-gray-300 text-gray-700 px-4 py-2 rounded">Yopish</button>
                     </div>
                 </form>
             </div>
@@ -232,7 +231,6 @@ onMounted( async () => {
                     </div>
                     <div class="flex justify-end">
                         <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded mr-2">Saqlash</button>
-                        <button @click="closeModal" class="bg-gray-300 text-gray-700 px-4 py-2 rounded">Yopish</button>
                     </div>
                 </form>
             </div>

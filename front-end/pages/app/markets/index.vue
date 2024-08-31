@@ -1,40 +1,56 @@
 <script setup>
-import { ref } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { config } from "config"
+
+const base = config.baseUrl
 
 let isAuthenticated = ref("");
+const data = ref([])
 const router = useRouter();
-onMounted(() => {
-    isAuthenticated = localStorage.getItem('authToken');
-    
-    if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
-        router.push('/login'); // Redirect to login if not authenticated
-    }
-});
 
+
+const fetchProvinces = async () => {
+    try {
+    const response = await fetch(`${base}/markets/province/get/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+
+    if (!response.ok) {
+      console.log("Error status:", response.status);
+      error.value =  await response.text()
+      return; // Exit function if response is not OK
+    }
+
+    const objs = await response.json();
+    data.value = objs
+  } catch (error) {
+    console.error(error);
+    error.value = error
+  }
+};
 
 const goToDetail = (index) => {
   router.push(`/app/markets/${index}`);
 };
-const data = ref([
-    {name:"Andijon"},
-    {name:"Farg'ona"},
-    {name:"Buxoro"},
-    {name:"Jizzax"},
-    {name:"Qaraqalpaqstan"},
-    {name:"Qashqadaryo"},
-    {name:"Navoiy"},
-    {name:"Namangan"},
-    {name:"Samarqand"},
-    {name:"Sirdaryo"},
-    {name:"Surxondaryo"},
-    {name:"Toshkent"},
-])
+onMounted(() => {
+    isAuthenticated = localStorage.getItem('authToken');
+    if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
+        router.push('/login'); // Redirect to login if not authenticated
+    }
+
+    nextTick(() =>{
+        fetchProvinces()
+    })
+});
 </script>
 <template>
     <div class="wrapper">
         <div class="grid grid-row-1 grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2">
-            <div v-for="(province, index) in data" :key="index" @click="goToDetail(index)" class="card">{{ province.name }}</div>
+            <div v-for="(province, index) in data" :key="index" @click="goToDetail(province.id )" class="card">{{ province.name }}</div>
         </div>
     </div>
 </template>
