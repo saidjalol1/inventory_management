@@ -8,21 +8,22 @@ const base = config.baseUrl
 const route_index = useRoute()
 const router = useRouter();
 let isAuthenticated = ref("");
-let regions = ref([])
+let shops = ref([])
 let searchQuery = ref("")
 
-const filteredRegions = computed(() => {
+const filteredMarkets = computed(() => {
   if (!searchQuery.value) {
-    return regions.value;
+    return shops.value.markets;
   }
-  return regions.value.filter(region =>
+  return shops.value.markets.filter(region =>
     region.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
 });
 
-const fetchRegions = async () => {
+
+const fetchMarkets = async () => {
     try {
-    const response = await fetch(`${base}/markets/regions/get/${ route_index.params.id }`, {
+    const response = await fetch(`${base}/markets/region/get/${ route_index.params.id }`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -34,15 +35,13 @@ const fetchRegions = async () => {
       return; // Exit function if response is not OK
     }
     const data = await response.json();
-    regions.value = data
-  } catch (error) {   
+    console.log(data)
+    shops.value = data
+  } catch (error) {
     console.error(error);
     error.value = error
   }
 }
-const goToDetail = (index) => {
-  router.push(`/app/markets/shop/${index}`);
-};
 
 onMounted(() => {
     isAuthenticated = localStorage.getItem('authToken');
@@ -52,18 +51,16 @@ onMounted(() => {
     }
 
     nextTick(()=>{
-        fetchRegions()
+        fetchMarkets()
     })
 });
 </script>
 <template>
-  <div class="wrapper">
-      <MenuFilter v-model="searchQuery"/>
-        <h1 class="mb-5 mt-5">Tumanlar</h1>
+    <div class="wrapper">
+        <MenuFilter v-model="searchQuery" />
+        <h1 class="mb-5 mt-5">{{ shops.name }} - Do'konlari</h1>
         <div class="grid grid-row-1 grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2">
-            <div v-for="(region, index) in filteredRegions" :key="index" @click="goToDetail(region.id)" class="card">
-              {{ region.name }}
-            </div>
+            <div v-for="(shop, index) in filteredMarkets" :key="index" @click="goToDetail(shop.id )" class="card">{{ shop.name }}</div>
         </div>
     </div>
 </template>
