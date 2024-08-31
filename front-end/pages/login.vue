@@ -24,6 +24,9 @@
             required
           />
         </div>
+        <div>
+          <p class="text-red-600">{{  error  }}</p>
+        </div>
         <button type="submit">Kirish</button>
       </form>
     </div>
@@ -38,9 +41,9 @@
   const base = config.baseUrl;
   const username = ref('');
   const password = ref('');
+  const error = ref("")
   const router = useRouter();
-  console.log(username.value)
-  console.log(password.value)
+ 
   const handleSubmit = async () => {
   try {
     const response = await fetch(`${base}/token/`, {
@@ -52,16 +55,16 @@
         username: username.value,
         hashed_password: password.value
       })
+      
     });
 
-    if (!response) {
+    if (!response.ok) {
       console.log("Error status:", response.status);
-      console.log("Error details:", await response.text()); // Log response text
+      error.value =  await response.text()
       return; // Exit function if response is not OK
     }
 
     const data = await response.json();
-    console.log('Login successful:', data);
 
     // Save token in local storage
     localStorage.setItem('authToken', data.access_token);
@@ -70,7 +73,7 @@
     router.push('/');
   } catch (error) {
     console.error('Login failed:', error);
-    // Optionally handle error display here
+    error.value = error
   }
 };
 </script>
