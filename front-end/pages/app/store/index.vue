@@ -2,37 +2,35 @@
 import { onMounted, ref } from "vue"
 import { Html5Qrcode } from 'html5-qrcode';
 import { useRouter } from 'vue-router';
+import { config } from "config"
 
+const base = config.baseUrl
 const router = useRouter();
 let isAuthenticated = ref("");
-
-onMounted(() => {
-    isAuthenticated = localStorage.getItem('authToken');
-    
-    if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
-        router.push('/login'); // Redirect to login if not authenticated
-    }
-});
+let error = ref("");
 
 const store = ref(true)
 const tranzactions = ref(false)
 const products = ref(false)
 const plusBtn = ref(true)
-
 const productAdd = ref(false)
 const storeAdd = ref(false)
+const searchQuery = ref("")
 
 const storeData = ref([])
 const tranzactionsData = ref([])
 const productsData = ref([])
+const productData = ref({})
+const storeProduct = ref({})
 
-const scannedData = ref([]); // Array to hold scanned data
+const scannedData = ref(""); // Array to hold scanned data
 const scannerActive = ref(false); // State to manage QR code scanner
   
 let qrCodeScanner = null;
 
 const itemsPerPage = 10; // Number of items per page
 const currentPage = ref(1);
+
 
 const toggleScanner = () => {
     if (scannerActive.value) {
@@ -42,7 +40,7 @@ const toggleScanner = () => {
     }
   };
 
-  const startScanner = () => {
+const startScanner = () => {
     const qrReaderElement = document.getElementById("qr-reader-video");
     if (qrReaderElement) {
       qrCodeScanner = new Html5Qrcode("qr-reader-video");
@@ -54,7 +52,7 @@ const toggleScanner = () => {
           qrbox: { width: 250, height: 250 }
         },
         (decodedText, decodedResult) => {
-          scannedData.value.push(decodedText);
+          scannedData.value = decodedText;
         },
         (errorMessage) => {
           console.log(errorMessage);
@@ -69,8 +67,7 @@ const toggleScanner = () => {
     }
   };
   
-  // Stop QR code scanner
-  const stopScanner = () => {
+const stopScanner = () => {
     if (qrCodeScanner) {
       qrCodeScanner.stop().then(() => {
         qrCodeScanner.clear();
@@ -80,15 +77,21 @@ const toggleScanner = () => {
       });
     }
   };
-  onMounted(async () => {
+onMounted(async () => {
+    isAuthenticated = localStorage.getItem('authToken');
+    
+    if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
+        router.push('/login'); // Redirect to login if not authenticated
+    }
     await nextTick(); // Ensures that the DOM is updated
     // Start the scanner only if it's active
     if (scannerActive.value) {
       startScanner();
     }
+    fetchStore()
   });
   
-  onUnmounted(() => {
+onUnmounted(() => {
     stopScanner(); // Cleanup when the component is unmounted
   });
 const toggleStore = () =>{
@@ -98,60 +101,198 @@ const toggleStore = () =>{
   plusBtn.value = true
 }
 
-const fetchStore = () =>{
-    storeData.value = [
-        {id: "4532",name:"nimadur",quantity:"34",base_price:"45000",sale_price:"35000",overall_price:"45000"},
-        {id: "4532",name:"nimadur",quantity:"34",base_price:"45000",sale_price:"35000",overall_price:"45000"},
-        {id: "4532",name:"nimadur",quantity:"34",base_price:"45000",sale_price:"35000",overall_price:"45000"},
-        {id: "4532",name:"nimadur",quantity:"34",base_price:"45000",sale_price:"35000",overall_price:"45000"},
-        {id: "4532",name:"nimadur",quantity:"34",base_price:"45000",sale_price:"35000",overall_price:"45000"},
-    ]
+const fetchStore = async () =>{
+  try {
+      const response = await fetch(`${base}/store/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (!response.ok) {
+        console.log("Error status:", response.status);
+        error.value =  await response.text()
+        return; // Exit function if response is not OK
+      }
+
+      const objs = await response.json();
+      storeData.value = objs
+      console.log(objs, "lkjlk")
+    } catch (error) {
+      console.error(error);
+      error.value = error
+    }
 }
 
-const fetchTranzactions = () =>{
-    tranzactions.value = !tranzactions.value
+const fetchTranzactions = async () =>{
+    tranzactions.value =  true
     plusBtn.value = false
     store.value = false
     products.value = false
-    tranzactionsData.value = [
-        {id: "4532",name:"nimadur",quantity:"+34",date:"2024-06-10"},
-        {id: "4532",name:"nimadur",quantity:"-34",date:"2024-06-10"},
-        {id: "4532",name:"nimadur",quantity:"+34",date:"2024-06-10"},
-        {id: "4532",name:"nimadur",quantity:"-34",date:"2024-06-10"},
-        {id: "4532",name:"nimadur",quantity:"+34",date:"2024-06-10"},
-    ]
+    try {
+      const response = await fetch(`${base}/tranzactions/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (!response.ok) {
+        console.log("Error status:", response.status);
+        error.value =  await response.text()
+        return; // Exit function if response is not OK
+      }
+
+      const objs = await response.json();
+      tranzactionsData.value = objs
+      console.log(objs)
+    } catch (error) {
+      console.error(error);
+      error.value = error
+    }
 }
 
-const fetchproducts = () =>{
-    products.value = !products.value
+const fetchproducts = async () =>{
+    products.value = true
     plusBtn.value = true
     store.value = false
     tranzactions.value = false
-    productsData.value = [
-        {id: "4532",name:"nimadur",base_price:"45000",sale_price:"35000",},
-        {id: "4532",name:"nimadur",base_price:"45000",sale_price:"35000",},
-        {id: "4532",name:"nimadur",base_price:"45000",sale_price:"35000",},
-        {id: "4532",name:"nimadur",base_price:"45000",sale_price:"35000",},
-        {id: "4532",name:"nimadur",base_price:"45000",sale_price:"35000",},
-    ]
+    try {
+      const response = await fetch(`${base}/products/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (!response.ok) {
+        console.log("Error status:", response.status);
+        error.value =  await response.text()
+        return; // Exit function if response is not OK
+      }
+
+      const objs = await response.json();
+      productsData.value = objs
+    } catch (error) {
+      console.error(error);
+      error.value = error
+    }
 }
+
+const addProduct = async (event) => {
+      event.preventDefault(); 
+      try {
+      const response = await fetch(`${base}/products/add/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${isAuthenticated}`
+        },
+        body: JSON.stringify({
+          name: productData.value.name,
+          base_price: productData.value.base_price,
+          sale_price: productData.value.sale_price,
+          qr_code_id :  productData.value.qr_code_id
+        })
+      });
+
+      if (!response.ok) {
+        console.log("Error status:", response.status);
+        error.value =  await response.text()
+        return; // Exit function if response is not OK
+      }
+      const data = await response.json();
+      if (!data.error){
+          productData.value = {}
+      }
+      console.log(data)
+      error.value = data.error
+      await fetchproducts()
+    } catch (error) {
+      console.error(error);
+      error.value = error
+    }
+  };
+const addStore = async (event) => {
+      event.preventDefault(); 
+      try {
+      const response = await fetch(`${base}/tranzactions/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${isAuthenticated}`
+        },
+        body: JSON.stringify({
+          qr_code_id: storeProduct.value.qr_code_id,
+          amount: storeProduct.value.amount
+        })
+      });
+
+      if (!response.ok) {
+        console.log("Error status:", response.status);
+        error.value =  await response.text()
+        return; // Exit function if response is not OK
+      }
+      const data = await response.json();
+      if (!data.error){
+          productData.value = {}
+      }
+      console.log(data)
+      error.value = data.error
+      fetchStore()
+    } catch (error) {
+      console.error(error);
+      error.value = error
+    }
+  };
+
+const filteredProducts = computed(() => {
+  if (!searchQuery.value) {
+    return productsData.value
+  } else {
+    return productsData.value.filter(code =>
+      code.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+  }
+});
+
+const filteredStore = computed(() => {
+  if (!searchQuery.value) {
+    return storeData.value
+  } else {
+    return storeData.value.filter(code =>
+      code.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+  }
+});
+
+const filteredTranzactions = computed(() => {
+  if (!searchQuery.value) {
+    return tranzactionsData.value
+  } else {
+    return tranzactionsData.value.filter(code =>
+      code.product.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+  }
+});
 
 const paginatedStoreProducts = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
-  return storeData.value.slice(start, end);
+  return filteredStore.value.slice(start, end);
 });
 
 const paginatedProducts = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
-  return productsData.value.slice(start, end);
+  return filteredProducts.value.slice(start, end);
 });
 
 const paginatedTranzactions = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
-  return tranzactionsData.value.slice(start, end);
+  return filteredTranzactions.value.slice(start, end);
 });
 
 const totalPages = computed(() => {
@@ -189,11 +330,14 @@ const closeModal = (modal) => {
         productAdd.value = !productAdd.value
     }
 };
-fetchStore()
+const f = ref(false)
 </script>
 <template>
 <div class="wrapper">
-  <MenuFilter />
+  <MenuFilter v-model="searchQuery" :f="f"/>
+  <div>
+    <p class="mt-4 mb-4 text-red-500 text-center">{{ error }}</p>
+  </div>
         <div class="header  grid grid-row-1 grid-cols-3 justify-center">
             <div class="flex flex-col items-center justify-center gap-y-2">
                 <button @click="toggleStore" :class="{ color: store }" class="text-gray-500 text-center text-xs">Omborda</button>
@@ -212,7 +356,6 @@ fetchStore()
     <table v-if="store" class="min-w-full bg-white shadow-md rounded-xl my-6">
       <thead class="rounded">
         <tr class="bg-green-400 text-white text-left rounded">
-          <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-xs uppercase font-semibold rounded-tl-xl">ID</th>
           <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-xs uppercase font-semibold">Nomi</th>
           <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-xs uppercase font-semibold">Miqdori</th>
           <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-xs uppercase font-semibold">Tan narxi</th>
@@ -222,7 +365,6 @@ fetchStore()
       </thead>
       <tbody class="text-gray-700 rounded">
         <tr v-for="(product, index) in paginatedStoreProducts" :key="index" class="hover:bg-green-100 border-b border-gray-200">
-          <td class="py-2 px-4 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.id }}</td>
           <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.name }}</td>
           <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.quantity }}</td>
           <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.base_price }}</td>
@@ -234,7 +376,7 @@ fetchStore()
     <table v-if="tranzactions" class="min-w-full bg-white shadow-md rounded-xl my-6">
       <thead class="rounded">
         <tr class="bg-green-400 text-white text-left rounded">
-          <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-xs uppercase font-semibold rounded-tl-xl">ID</th>
+          <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-xs uppercase font-semibold rounded-tl-xl">Seriya</th>
           <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-xs uppercase font-semibold">Nomi</th>
           <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-xs uppercase font-semibold">Miqdori</th>
           <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-xs uppercase font-semibold">Sana</th>
@@ -242,9 +384,9 @@ fetchStore()
       </thead>
       <tbody class="text-gray-700 rounded">
         <tr v-for="(product, index) in paginatedTranzactions" :key="index" class="hover:bg-green-100 border-b border-gray-200">
-          <td class="py-2 px-4 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.id }}</td>
-          <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.name }}</td>
-          <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.quantity }}</td>
+          <td class="py-2 px-4 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.product.qr_code_id }}</td>
+          <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.product.name }}</td>
+          <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.tranzaction_type === "add" ? "- " : "+ " }}{{ product.amount }}</td>
           <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.date }}</td>
         </tr>
       </tbody>
@@ -252,7 +394,7 @@ fetchStore()
     <table v-if="products" class="min-w-full bg-white shadow-md rounded-xl my-6">
       <thead class="rounded">
         <tr class="bg-green-400 text-white text-left rounded">
-          <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-xs uppercase font-semibold rounded-tl-xl">ID</th>
+          <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-xs uppercase font-semibold rounded-tl-xl">Seriya raqam</th>
           <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-xs uppercase font-semibold">Nomi</th>
           <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-xs uppercase font-semibold">Tan narxi</th>
           <th class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-xs uppercase font-semibold">Sotuv narxi</th>
@@ -260,7 +402,7 @@ fetchStore()
       </thead>
       <tbody class="text-gray-700 rounded">
         <tr v-for="(product, index) in paginatedProducts" :key="index" class="hover:bg-green-100 border-b border-gray-200">
-          <td class="py-2 px-4 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.id }}</td>
+          <td class="py-2 px-4 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.qr_code_id }}</td>
           <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.name }}</td>
           <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.sale_price }}</td>
           <td class="py-2 px-3 text-xs sm:py-3 sm:px-4 sm:text-sm cursor-pointer">{{ product.base_price }}</td>
@@ -295,42 +437,63 @@ fetchStore()
         <div class="fixed inset-0 bg-black opacity-50"></div>
         <div class="bg-white rounded-lg shadow-lg p-6 w-96 z-0">
           <h3 class="text-lg font-semibold mb-4">Mahsulot Kiritish</h3>
+          <form @submit="addProduct">
+            <div class="mb-4">
+            <div id="qr-reader-video"  class="qr-reader-container w-full h-48 border border-gray-300 rounded-lg mt-1"></div>
+            <button type="button" @click="toggleScanner" class="bg-blue-500 text-white px-4 py-2 rounded mt-2">
+              {{ scannerActive ? 'To\'tatish' : 'Skayner boshlash' }}
+            </button>
+            <div class="mt-2">
+              <label class="block text-sm font-medium text-gray-700">Seriya raqam</label>
+              <div class="mb-2">
+                <input type="text"  :placeholder="'Skaynerlandi ' + ( scannedData)" v-model="productData.qr_code_id" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
+              </div>
+            </div>
+          </div>
           <div class="mb-4">
             <label for="newName" class="block text-sm font-medium text-gray-700">Nomi</label>
-            <input type="text" id="newName" class="mt-1 p-2 w-full border rounded">
+            <input type="text" id="newName" v-model="productData.name" class="mt-1 p-2 w-full border rounded">
           </div>
           <div class="mb-4">
             <label for="newAmount" class="block text-sm font-medium text-gray-700">Tan Narxi</label>
-            <input  type="number" id="newAmount" class="mt-1 p-2 w-full border rounded">
+            <input  type="number" id="newAmount" v-model="productData.base_price" class="mt-1 p-2 w-full border rounded">
           </div>
           <div class="mb-4">
             <label for="newDate" class="block text-sm font-medium text-gray-700">Sotuv Narxi</label>
-            <input  type="Number" id="newDate" class="mt-1 p-2 w-full border rounded">
+            <input  type="Number" id="newDate" v-model="productData.sale_price" class="mt-1 p-2 w-full border rounded">
           </div>
           <div class="flex justify-end">
-            <button @click="saveNewExpense" class="bg-green-500 text-white px-4 py-2 rounded mr-2">Saqlash</button>
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded mr-2">Saqlash</button>
             <button @click="closeModal(0)" class="bg-gray-300 text-gray-700 px-4 py-2 rounded">Yopish</button>
           </div>
+          </form>
         </div>
     </div>
     <div v-if="storeAdd" class="fixed inset-0 flex items-center justify-center z-50">
         <div class="fixed inset-0 bg-black opacity-50"></div>
         <div class="bg-white rounded-lg shadow-lg p-6 w-96 z-0">
           <h3 class="text-lg font-semibold mb-4">Mahsulot Kiritish</h3>
-        <form>
+        <form @submit="addStore">
           <div class="mb-4">
             <div id="qr-reader-video"  class="qr-reader-container w-full h-48 border border-gray-300 rounded-lg mt-1"></div>
             <button type="button" @click="toggleScanner" class="bg-blue-500 text-white px-4 py-2 rounded mt-2">
               {{ scannerActive ? 'To\'tatish' : 'Skayner boshlash' }}
             </button>
             <div class="mt-2">
-              <label class="block text-sm font-medium text-gray-700">Skaynerlanganlar</label>
-              <div v-for="(data, index) in scannedData" :key="index" class="mb-2">
-                <input type="text" :placeholder="'Scanned Data ' + (index + 1)" v-model="scannedData[index]" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
+              <label class="block text-sm font-medium text-gray-700">Seriya Raqam</label>
+              <div  class="mb-2">
+                <input type="text" :placeholder="scannedData" v-model="storeProduct.qr_code_id" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
+              </div>
+            </div>
+            <div class="mt-2">
+              <label class="block text-sm font-medium text-gray-700">Miqdori</label>
+              <div  class="mb-2">
+                <input type="number" v-model="storeProduct.amount" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
               </div>
             </div>
           </div>
           <div class="flex justify-end mt-4">
+            <button @click="closeModal(1)"  class="bg-gray-500 text-white px-4 py-2 mr-4 rounded">Yopish</button>
             <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">saqlash</button>
           </div>
         </form>
