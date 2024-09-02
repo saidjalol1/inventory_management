@@ -1,41 +1,36 @@
 <script setup>
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import { config } from 'config';
-
 import { useRouter } from 'vue-router';
+
+
+const f = ref(true)
+const filter = ref("")
 const router = useRouter();
+const obj = ref({})
 let isAuthenticated = ref("");
-
 const base = config.baseUrl;
-console.log(base)
 
-const isSearchVisible = ref(false);
-const isFilterVisible = ref(false);
-
-const toggleSearch = () => {
-    isSearchVisible.value = !isSearchVisible.value;
-    if (isSearchVisible.value) {
-        isFilterVisible.value = false; // Hide filter when search is active
-    }
-};
-
-const toggleFilter = () => {
-    isFilterVisible.value = !isFilterVisible.value;
-    if (isFilterVisible.value) {
-        isSearchVisible.value = false; // Hide search when filter is active
-    }
-};
-async function fetchData() {
+const fetchData = async () => {
   try {
-    const response = await fetch(`${base}/`)
+    const response = await fetch(`${base}/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },      
+    });
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
-    const data = await response.json()
-    console.log(data)
+    const objs = await response.json()
+    obj.value = objs
+    console.log(objs.sales_chart.series)
   } catch (error) {
     console.error('Error fetching data:', error)
   }
+}
+function formatPrice(price) {
+  return new Intl.NumberFormat().format(price)
 }
 onMounted(() => {
     isAuthenticated = localStorage.getItem('authToken');
@@ -43,13 +38,15 @@ onMounted(() => {
     if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
         router.push('/login'); // Redirect to login if not authenticated
     }
+    nextTick(() =>{
+        fetchData()
+    })
 });
-fetchData()
 </script>
 <template>
     <div class="wrapper">
-        <MenuFilter />
-        <div class="grid grid-row-1 grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2">
+        <MenuFilter :f="f"/>
+        <div class="grid grid-row-1 grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 mt-10">
             <div class="card1">
                 <div class="icon">
                     <span>
@@ -60,7 +57,7 @@ fetchData()
                     </span>
                 </div>
                 <div class="text">
-                    10000000
+                    {{ formatPrice(obj.sales)}} so'm
                     <span>Sotuv</span>
                 </div>
             </div>
@@ -73,7 +70,7 @@ fetchData()
                     </span>
                 </div>
                 <div class="text">
-                    10000000
+                    {{ formatPrice(obj.income)}} so'm
                     <span>Foyda</span>
                 </div>
             </div>
@@ -86,7 +83,7 @@ fetchData()
                     </span>
                 </div>
                 <div class="text">
-                    10000000
+                    {{ obj.most_product }}
                     <span>Eng ko'p sotilgan mahsulot</span>
                 </div>
             </div>
@@ -99,7 +96,7 @@ fetchData()
                     </span>
                 </div>
                 <div class="text">
-                    10000000
+                    {{ obj.most_shop }}
                     <span>Eng ko'p harid qilgan mijoz</span>
                 </div>
             </div>
@@ -135,9 +132,9 @@ fetchData()
 }
 .text{
     margin-top: 20px;
-    font-size: 18px;
+    font-size: 14px;
     color: black;
-    font-weight: 700;
+    font-weight: 600;
     display: flex;
     flex-direction: column;
     row-gap: 10px;
