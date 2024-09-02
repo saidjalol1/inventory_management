@@ -1,5 +1,50 @@
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { config } from 'config'
+const base = config.baseUrl
+const route = useRoute()
+const saleId = route.params.id
+
+const sale = ref({})
+const error = ref('')
+
+const fetchSale = async () => {
+  try {
+    const response = await fetch(`${base}/sales/${saleId}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    })
+
+    if (!response.ok) {
+      console.error("Error status:", response.status)
+      error.value = await response.text()
+      return
+    }
+
+    const data = await response.json()
+    sale.value = data
+    console.log(data)
+  } catch (err) {
+    console.error(err)
+    error.value = err.message
+  }
+}
+
+// Function to print the page
+function printPage() {
+  window.print()
+}
+
+function formatPrice(price) {
+  return new Intl.NumberFormat().format(price)
+}
+onMounted(() =>{
+  fetchSale()
+})
+</script>
 <template>
-  <div class="print-page">
+  <div v-if="sale.id" class="print-page">
     <header>
       <div class="container">
         <div>
@@ -13,7 +58,7 @@
           Накладная No {{ sale.id }}
         </div>
         <div class="name_surname">
-          Кому : {{ sale.shop.name }} {{ sale.shop.last_name }}
+          Кому : {{ sale.shop.name }}
         </div>
         <div class="other_data">
           От кого
@@ -29,14 +74,14 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in items" :key="item.id">
-              <td>{{ index + 1 }}</td>
+            <tr v-for="(item, index) in sale.items" :key="item.id">
+              <td>{{ item.id }}</td>
               <td>{{ item.product.name }}</td>
               <td>{{ item.quantity }}</td>
               <td>{{ formatPrice(item.product.sale_price) }}</td>
               <td>{{ formatPrice(item.product.sale_price * item.quantity) }}</td>
             </tr>
-            <tr v-if="items.length === 0">
+            <tr v-if="sale.length === 0">
               <td colspan="5">No items available</td>
             </tr>
           </tbody>
@@ -58,48 +103,10 @@
         <button class="no-print" @click="printPage">Print</button>
       </div>
   </div>
+  <div v-else>
+    <p>Loading ...</p>
+  </div>
 </template>
-
-<script setup>
-import { ref } from 'vue'
-
-// Mock data
-const sale = ref({
-  id: 2,
-  shop: {
-    name: 'Shop Name',
-    last_name: 'Shop Last Name'
-  },
-})
-
-const items = ref([
-  {
-    id: 1,
-    product: {
-      name: 'Product 1',
-      sale_price: 10000
-    },
-    quantity: 1
-  },
-  {
-    id: 2,
-    product: {
-      name: 'Product 2',
-      sale_price: 5000
-    },
-    quantity: 2
-  }
-])
-
-function formatPrice(price) {
-  return new Intl.NumberFormat().format(price)
-}
-
-function printPage() {
-  window.print()
-}
-</script>
-
 <style scoped>
 .container {
   margin: 0 auto;
