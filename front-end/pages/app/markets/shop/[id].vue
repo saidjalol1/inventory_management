@@ -54,6 +54,9 @@ onMounted(() => {
         fetchMarkets()
     })
 });
+const goToDetail = (index) =>{
+  router.push(`market/${index}`)
+}
 </script>
 <template>
     <div class="wrapper">

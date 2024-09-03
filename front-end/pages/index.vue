@@ -3,13 +3,24 @@ import { nextTick, ref } from 'vue';
 import { config } from 'config';
 import { useRouter } from 'vue-router';
 
-
-const f = ref(true)
-const filter = ref("")
+const isOpen = ref(false)
 const router = useRouter();
 const obj = ref({})
+const money = ref([])
 let isAuthenticated = ref("");
 const base = config.baseUrl;
+const amount = ref('');
+const date = ref('');
+const itemsPerPage = 10;
+const currentPage = ref(1);
+
+
+const paginatedmoney = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return money.value.slice(start, end);
+});
+const totalPages = computed(() => Math.ceil(money.value.length / itemsPerPage));
 
 const fetchData = async () => {
   try {
@@ -24,14 +35,42 @@ const fetchData = async () => {
     }
     const objs = await response.json()
     obj.value = objs
-    console.log(objs.sales_chart.series)
+    money.value = objs["moneys"]
+    console.log(objs["moneys"])
+    console.log(objs)
   } catch (error) {
     console.error('Error fetching data:', error)
   }
 }
+const submitTransaction = async () => {
+  try {
+    const response = await fetch(`${base}/expance/money_transactions/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        amount : amount.value,
+        date : date.value
+    }),
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const result = await response.json();
+    console.log(result)
+    amount.value  = ""
+    date.value  = ""
+    console.log('Transaction added:', result);
+  } catch (error) {
+    console.error('Error submitting transaction:', error);
+  }
+};
+
 function formatPrice(price) {
   return new Intl.NumberFormat().format(price)
 }
+
 onMounted(() => {
     isAuthenticated = localStorage.getItem('authToken');
     
@@ -42,11 +81,40 @@ onMounted(() => {
         fetchData()
     })
 });
+const toggleModal = () =>{
+    isOpen.value = true
+}
+const closeModal = () =>{
+    isOpen.value = false
+}
 </script>
 <template>
     <div class="wrapper">
-        <MenuFilter :f="f"/>
-        <div class="grid grid-row-1 grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 mt-10">
+        <div class="grid grid-cols-1 grid-row-1 gap-2 mt-3">
+            <div class="card1">
+                <div class="icon flex justify-between">
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-wallet" viewBox="0 0 16 16">
+                            <path d="M0 3a2 2 0 0 1 2-2h13.5a.5.5 0 0 1 0 1H15v2a1 1 0 0 1 1 1v8.5a1.5 1.5 0 0 1-1.5 1.5h-12A2.5 2.5 0 0 1 0 12.5zm1 1.732V12.5A1.5 1.5 0 0 0 2.5 14h12a.5.5 0 0 0 .5-.5V5H2a2 2 0 0 1-1-.268M1 3a1 1 0 0 0 1 1h12V2H2a1 1 0 0 0-1 1"/>
+                        </svg>
+                    </span>
+                    <span class="cl" @click="toggleModal">
+                        <button>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-coin" viewBox="0 0 16 16">
+                                <path d="M5.5 9.511c.076.954.83 1.697 2.182 1.785V12h.6v-.709c1.4-.098 2.218-.846 2.218-1.932 0-.987-.626-1.496-1.745-1.76l-.473-.112V5.57c.6.068.982.396 1.074.85h1.052c-.076-.919-.864-1.638-2.126-1.716V4h-.6v.719c-1.195.117-2.01.836-2.01 1.853 0 .9.606 1.472 1.613 1.707l.397.098v2.034c-.615-.093-1.022-.43-1.114-.9zm2.177-2.166c-.59-.137-.91-.416-.91-.836 0-.47.345-.822.915-.925v1.76h-.005zm.692 1.193c.717.166 1.048.435 1.048.91 0 .542-.412.914-1.135.982V8.518z"/>
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                <path d="M8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11m0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12"/>
+                            </svg>
+                        </button>
+                    </span>
+                </div>
+                <div class="text">
+                    {{ formatPrice(obj.sales)}} so'm
+                    <span>Balance</span>
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-row-1 grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 mt-6">
             <div class="card1">
                 <div class="icon">
                     <span>
@@ -108,7 +176,66 @@ onMounted(() => {
                 </ClientOnly>
             </div>
         </div>
+        <div class="grid grid-cols-1 grid-row-1 gap-2 mt-2 mb-20">
+            <div class="card1">
+                Balance Tarixi
+                <div class="w-full flex justify-between items-center" v-for="(i, index) in paginatedmoney" :key="index" >
+                    <span class="text-red-600 text-sm mt-2">- {{ i.amount }} so'm</span>
+                    <span class="text-green-500 text-xs mt-2">{{ i.date }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="paginate flex justify-between items-center mt-4">
+          <button
+            @click="prevPage"
+            :disabled="currentPage === 1"
+            class="bg-gray-300 text-gray-700 px-4 py-2 rounded disabled:opacity-50"
+          >
+            <!-- Previous page icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+            </svg>
+          </button>
+          <span class="text-gray-700 text-sm">
+            {{ currentPage }} / {{ totalPages }}
+          </span>
+          <button
+            @click="nextPage"
+            :disabled="currentPage === totalPages"
+            class="bg-gray-300 text-gray-700 px-4 py-2 rounded disabled:opacity-50"
+          >
+            <!-- Next page icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+            </svg>
+          </button>
+        </div>
+        <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center  overflow-y-auto px-4">
+            <div class="fixed inset-0 bg-black opacity-50 overflow-y-auto" @click="closeModal"></div>
+            <div class="modal relative bg-white p-6 rounded shadow-lg max-w-lg w-full">
+        <button @click="closeModal" class="absolute top-2 right-2 text-gray-600 hover:text-gray-800">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+        <h2 class="text-lg font-semibold mb-4">Sotuv Qo'shish +</h2>
+        <form @submit.prevent="submitTransaction">
+            <div class="mb-4">
+                <label for="payment" class="block text-sm font-medium text-gray-700">Miqdori</label>
+                <input type="number" id="payment" v-model="amount" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
+            </div>
+            <div class="mb-4">
+                <label for="payment" class="block text-sm font-medium text-gray-700">Sanasi</label>
+                <input type="date" id="payment" v-model="date" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
+            </div>
+            <div class="flex justify-end mt-4">
+                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Saqlash</button>
+            </div>
+        </form>
+            </div>
+        </div>
     </div>
+    
 </template>
 <style scoped>
 .card1{
@@ -129,6 +256,21 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.icon span:nth-child(2){
+    width: 50px;
+    height: 50px;
+    background-color: rgb(238, 238, 238);
+    color: grey;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    -webkit-box-shadow: -1px 2px 9px -1px rgba(184,182,184,1);
+    -moz-box-shadow: -1px 2px 9px -1px rgba(184,182,184,1);
+    box-shadow: -1px 2px 9px -1px rgba(184,182,184,1);
+    cursor: pointer;
 }
 .text{
     margin-top: 20px;
@@ -153,4 +295,10 @@ onMounted(() => {
 -moz-box-shadow: -1px 2px 9px -1px rgba(184,182,184,1);
 box-shadow: -1px 2px 9px -1px rgba(184,182,184,1);
 }
+.modal{
+    width: 400px;
+    height: auto;
+    overflow-y: auto;
+    margin-top: 110px;
+  }
 </style>
