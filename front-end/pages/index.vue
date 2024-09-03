@@ -24,7 +24,7 @@ const totalPages = computed(() => Math.ceil(money.value.length / itemsPerPage));
 
 const fetchData = async () => {
   try {
-    const response = await fetch(`${base}/`, {
+    const response = await fetch(`${base}/statistics`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'

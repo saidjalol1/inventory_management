@@ -21,7 +21,7 @@ const series = ref([]);
 // Function to fetch data from the server
 const fetchData = async () => {
   try {
-    const response = await fetch(`${base}/`, {
+    const response = await fetch(`${base}/statistics`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
