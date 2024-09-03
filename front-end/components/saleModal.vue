@@ -86,12 +86,7 @@ const router = useRouter();
     payment: '',
     shop: ''
   });
-  const scannedData = ref([
-    {"quantity":10,"product_id":5},
-    {"quantity":10,"product_id":5},
-    {"quantity":10,"product_id":5},
-    {"quantity":10,"product_id":5},
-  ]); // Array to hold scanned data
+  const scannedData = ref([]); // Array to hold scanned data
   const scannerActive = ref(false); // State to manage QR code scanner
   
   let qrCodeScanner = null;
