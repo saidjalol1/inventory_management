@@ -48,8 +48,9 @@
             </button>
             <div class="mt-2">
               <label class="block text-sm font-medium text-gray-700">Scanned Data</label>
-              <div v-for="(data, index) in scannedData" :key="index" class="mb-2">
-                <input type="text" :placeholder="'Scanned Data ' + (index + 1)" v-model="scannedData[index]" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
+              <div v-for="(data, index) in scannedData" :key="index" class="mb-2 flex items-center">
+                <input type="text" :placeholder="'Seriya raqam ' + (data.product_id || '')" v-model="data.product_id" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
+                <input type="number" placeholder="Miqdori" v-model="data.quantity" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2 ml-2"/>
               </div>
             </div>
           </div>
@@ -64,8 +65,11 @@
   <script setup>
   import { ref, onMounted, nextTick, onUnmounted, watch } from 'vue';
   import { Html5Qrcode } from 'html5-qrcode';
-  
-  // Modal state
+  import { useRouter } from 'vue-router';
+import { config } from "config"
+
+const base = config.baseUrl
+const router = useRouter();
   const props = defineProps({
     isOpen: Boolean
   });
@@ -77,48 +81,133 @@
   const shops = ref([]);
   const selectedProvince = ref('');
   const selectedRegion = ref('');
+  const error = ref('');
   const sale = ref({
     payment: '',
     shop: ''
   });
-  const scannedData = ref([]); // Array to hold scanned data
+  const scannedData = ref([
+    {"quantity":10,"product_id":5},
+    {"quantity":10,"product_id":5},
+    {"quantity":10,"product_id":5},
+    {"quantity":10,"product_id":5},
+  ]); // Array to hold scanned data
   const scannerActive = ref(false); // State to manage QR code scanner
   
   let qrCodeScanner = null;
   
-  // Fetch provinces (Replace with your API call)
+
   const fetchProvinces = async () => {
-    provinces.value = [
-      { id: '1', name: 'Province 1' },
-      { id: '2', name: 'Province 2' }
-    ];
-  };
-  
-  // Fetch regions based on selected province (Replace with your API call)
-  const fetchRegions = async () => {
-    if (selectedProvince.value) {
-      regions.value = [
-        { id: '1', name: 'Region 1' },
-        { id: '2', name: 'Region 2' }
-      ];
+    try {
+    const response = await fetch(`${base}/markets/province/get/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+
+    if (!response.ok) {
+      console.log("Error status:", response.status);
+      console.log(base)
+      error.value =  await response.text()
+      return; // Exit function if response is not OK
     }
-  };
-  
-  // Fetch shops based on selected region (Replace with your API call)
-  const fetchShops = async () => {
-    if (selectedRegion.value) {
-      shops.value = [
-        { id: '1', name: 'Shop 1' },
-        { id: '2', name: 'Shop 2' }
-      ];
+
+    const data = await response.json();
+    provinces.value = data
+  } catch (error) {
+    console.error(error);
+    error.value = error
+  }
+};
+
+const fetchRegions = async () => {
+    try {
+    const response = await fetch(`${base}/markets/regions/get/${selectedProvince.value}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+    if (!response.ok) {
+      console.log("Error status:", response.status);
+      error.value =  await response.text()
+      return; // Exit function if response is not OK
     }
-  };
+    const data = await response.json();
+    regions.value = data
+  } catch (error) {
+    console.error(error);
+    error.value = error
+  }
+}
+const fetchShop = async () => {
+    try {
+    const response = await fetch(`${base}/markets/region/get/${selectedRegion.value}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+    if (!response.ok) {
+      console.log("Error status:", response.status);
+      error.value =  await response.text()
+      return; // Exit function if response is not OK
+    }
+    const data = await response.json();
+    console.log(data)
+    shops.value = data.markets
+  } catch (error) {
+    console.error(error);
+    error.value = error
+  }
+}
   
   // Handle form submission
-  const handleSubmit = () => {
-    console.log('Sale Data:', { ...sale.value, province: selectedProvince.value, region: selectedRegion.value, scannedData: scannedData.value });
+const handleSubmit = async () => {
+  // Prepare the sale data according to the SaleCreate schema
+
+
+  try {
+    const response = await fetch(`${base}/sales/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        payment: parseFloat(sale.value.payment),
+        debt: 0, // Assuming debt is not provided in the form and should be set to 0 or another default value
+        date_added: new Date().toISOString().split('T')[0], // Use today's date for example
+        shop_id: parseInt(sale.value.shop),
+        items: scannedData.value.map((data) => ({
+          quantity: data.quantity, // Assuming a default quantity of 1 for each scanned item
+          product_id: parseInt(data.product_id) // Map scanned data to product IDs (adjust as necessary)
+        }))
+      })
+    });
+
+    if (!response.ok) {
+      console.log("Error status:", response.status);
+      error.value = await response.text();
+      const items =  scannedData.value.map((data) => ({
+          quantity: data.quantity, // Assuming a default quantity of 1 for each scanned item
+          product_id: parseInt(data.product_id) // Map scanned data to product IDs (adjust as necessary)
+        }))
+    console.log(items)
+      return; // Exit function if response is not OK
+    }
+
+    const result = await response.json();
+    console.log('Sale Created:', result);
+    
+    // Optionally handle the result or show a success message
     closeModal();
-  };
+  } catch (error) {
+    console.error('Submission Error:', error);
+    error.value = 'An error occurred while creating the sale.';
+  }
+  closeModal();
+};
   
   // Toggle QR code scanner
   const toggleScanner = () => {
@@ -181,6 +270,7 @@
     if (scannerActive.value) {
       startScanner();
     }
+    fetchProvinces()
   });
   
   onUnmounted(() => {
@@ -188,9 +278,8 @@
   });
   
   watch(selectedProvince, fetchRegions);
-  watch(selectedRegion, fetchShops);
+  watch(selectedRegion, fetchShop);
   
-  fetchProvinces();
   </script>
   
   <style scoped>
