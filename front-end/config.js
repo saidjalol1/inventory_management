@@ -1,3 +1,3 @@
 export const config = {
-    baseUrl: 'https://asaloft2.uz/',
+    baseUrl: 'https://asaloft2.uz',
   };
