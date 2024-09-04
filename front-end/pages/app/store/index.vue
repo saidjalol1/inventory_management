@@ -193,7 +193,7 @@ const addProduct = async (event) => {
           name: productData.value.name,
           base_price: productData.value.base_price,
           sale_price: productData.value.sale_price,
-          qr_code_id :  productData.value.qr_code_id
+          qr_code_id :  scannedData.value
         })
       });
 
