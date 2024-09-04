@@ -49,7 +49,7 @@
             <div class="mt-2">
               <label class="block text-sm font-medium text-gray-700">Scanned Data</label>
               <div v-for="(data, index) in scannedData" :key="index" class="mb-2 flex items-center">
-                <input type="text" :placeholder="'Seriya raqam ' + (data.product_id || '')" v-model="data.product_id" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
+                <input type="text" :placeholder="` Seriya raqam ${ data.product_id}`" v-model="data.product_id" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
                 <input type="number" placeholder="Miqdori" v-model="data.quantity" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2 ml-2"/>
               </div>
             </div>
