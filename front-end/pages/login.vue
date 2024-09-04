@@ -46,7 +46,7 @@
  
   const handleSubmit = async () => {
   try {
-    const response = await fetch(`${base}/token/`, {
+    const response = await fetch(`${base}/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

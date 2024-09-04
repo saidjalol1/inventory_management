@@ -20,7 +20,7 @@
 
   const fetchExpances = async () =>{
     try {
-      const response = await fetch(`${base}/expance/expances/`, {
+      const response = await fetch(`${base}/expance/expances`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -46,7 +46,7 @@
       const formattedDate = new Date(newExpence.value.date_added).toISOString().split('T')[0];
       console.log(formattedDate)
       try {
-      const response = await fetch(`${base}/expance/expance/add/`, {
+      const response = await fetch(`${base}/expance/expance/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +82,7 @@
     const formattedDate = new Date(selectedExpense.value.date_added).toISOString().split('T')[0];
       console.log(formattedDate)
       try {
-      const response = await fetch(`${base}/expance/expances/${ selectedExpense.value.id }`, {
+      const response = await fetch(`${base}/expance/expances${ selectedExpense.value.id }`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

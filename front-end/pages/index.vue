@@ -44,7 +44,7 @@ const fetchData = async () => {
 }
 const submitTransaction = async () => {
   try {
-    const response = await fetch(`${base}/expance/money_transactions/`, {
+    const response = await fetch(`${base}/expance/money_transactions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -54,7 +54,7 @@ const savePayment = async () => {
     selectedSale.value.payment = newQuantity.value;
 
     try {
-      const response = await fetch(`${base}/sales/${selectedSale.value.id}/`, {
+      const response = await fetch(`${base}/sales/${selectedSale.value.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

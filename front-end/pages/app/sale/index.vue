@@ -26,7 +26,7 @@ const handleDateFilterChange = (newDateFilter) => {
 
 const fetchSales = async () =>{
     try {
-      const response = await fetch(`${base}/sales/`, {
+      const response = await fetch(`${base}/sales`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -53,7 +53,7 @@ const savePayment = async () => {
     selectedSale.value.payment = newQuantity.value;
 
     try {
-      const response = await fetch(`${base}/sales/${selectedSale.value.id}/`, {
+      const response = await fetch(`${base}/sales/${selectedSale.value.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

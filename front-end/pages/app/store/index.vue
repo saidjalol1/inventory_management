@@ -103,7 +103,7 @@ const toggleStore = () =>{
 
 const fetchStore = async () =>{
   try {
-      const response = await fetch(`${base}/store/`, {
+      const response = await fetch(`${base}/store`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -131,7 +131,7 @@ const fetchTranzactions = async () =>{
     store.value = false
     products.value = false
     try {
-      const response = await fetch(`${base}/tranzactions/`, {
+      const response = await fetch(`${base}/tranzactions`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -159,7 +159,7 @@ const fetchproducts = async () =>{
     store.value = false
     tranzactions.value = false
     try {
-      const response = await fetch(`${base}/products/`, {
+      const response = await fetch(`${base}/products`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -183,7 +183,7 @@ const fetchproducts = async () =>{
 const addProduct = async (event) => {
       event.preventDefault(); 
       try {
-      const response = await fetch(`${base}/products/add/`, {
+      const response = await fetch(`${base}/products/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

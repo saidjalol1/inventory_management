@@ -25,7 +25,7 @@ const clientsurname = ref("")
 
 const fetchProvinces = async () => {
     try {
-    const response = await fetch(`${base}/markets/province/get/`, {
+    const response = await fetch(`${base}/markets/province/get`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -70,7 +70,7 @@ const fetchRegions = async () => {
 const addRegion = async (event) => {
     event.preventDefault(); 
     try {
-    const response = await fetch(`${base}/markets/region/add/`, {
+    const response = await fetch(`${base}/markets/region/add`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -105,7 +105,7 @@ const addRegion = async (event) => {
 const addShop = async (event) => {
     event.preventDefault(); 
     try {
-    const response = await fetch(`${base}/markets/market/add/`, {
+    const response = await fetch(`${base}/markets/market/add`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

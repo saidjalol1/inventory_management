@@ -12,7 +12,7 @@ const router = useRouter();
 
 const fetchProvinces = async () => {
     try {
-    const response = await fetch(`${base}/markets/province/get/`, {
+    const response = await fetch(`${base}/markets/province/get`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'

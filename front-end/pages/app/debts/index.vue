@@ -53,7 +53,7 @@ const savePayment = async () => {
     selectedSale.value.payment = newQuantity.value;
 
     try {
-      const response = await fetch(`${base}/sales/${selectedSale.value.id}/`, {
+      const response = await fetch(`${base}/sales/${selectedSale.value.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -145,6 +145,7 @@ onMounted(() => {
     isAuthenticated = localStorage.getItem('authToken');
     
     if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
+        console.log("Un Authenticated")
         router.push('/login'); // Redirect to login if not authenticated
     }
     nextTick(() =>{
