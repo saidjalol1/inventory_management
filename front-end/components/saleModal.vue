@@ -229,8 +229,7 @@ const handleSubmit = async () => {
           const existingData = scannedData.value.find(data => data.product_id === decodedText);
           if (existingData) {
             existingData.quantity += 1; // Increase quantity if already exists
-          } else {
-            scannedCodes.add(decodedText); // Add to the set
+          } else { // Add to the set
             scannedData.value.push({ product_id: decodedText, quantity: 1 }); // Add new entry to scannedData
         }
         },
