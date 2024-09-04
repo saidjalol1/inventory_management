@@ -225,9 +225,10 @@ const handleSubmit = async () => {
           fps: 10,
           qrbox: { width: 250, height: 250 }
         },
-        (decodedText, decodedResult) => {
-          scannedData.value.push(decodedText);
-        },
+        scannedData.value.push({
+          product_id: decodedText,
+          quantity: 1 // Default quantity
+        }),
         (errorMessage) => {
           console.log(errorMessage);
         }
