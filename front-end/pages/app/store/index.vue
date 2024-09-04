@@ -224,7 +224,7 @@ const addStore = async (event) => {
           'Authorization': `Bearer ${isAuthenticated}`
         },
         body: JSON.stringify({
-          qr_code_id: storeProduct.value.qr_code_id,
+          qr_code_id: scannedData,
           amount: storeProduct.value.amount
         })
       });
