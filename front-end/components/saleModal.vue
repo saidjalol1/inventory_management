@@ -194,9 +194,10 @@ const handleSubmit = async () => {
 
     const result = await response.json();
     console.log('Sale Created:', result);
-    
-    // Optionally handle the result or show a success message
-    closeModal();
+    scannedData.value = []
+    selectedProvince.value = ""
+    selectedRegion.value = ""
+    window.location.reload()
   } catch (error) {
     console.error('Submission Error:', error);
     error.value = 'An error occurred while creating the sale.';
