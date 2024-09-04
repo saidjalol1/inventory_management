@@ -82,7 +82,7 @@
     const formattedDate = new Date(selectedExpense.value.date_added).toISOString().split('T')[0];
       console.log(formattedDate)
       try {
-      const response = await fetch(`${base}/expance/expances${ selectedExpense.value.id }`, {
+      const response = await fetch(`${base}/expance/expances/${ selectedExpense.value.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
