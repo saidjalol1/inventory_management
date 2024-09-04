@@ -233,7 +233,6 @@ const handleSubmit = async () => {
             scannedCodes.add(decodedText); // Add to the set
             scannedData.value.push({ product_id: decodedText, quantity: 1 }); // Add new entry to scannedData
         }
-        })
         },
         (errorMessage) => {
           console.log(errorMessage);
