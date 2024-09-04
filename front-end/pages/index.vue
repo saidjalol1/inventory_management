@@ -109,7 +109,7 @@ const closeModal = () =>{
                     </span>
                 </div>
                 <div class="text">
-                    {{ formatPrice(obj.sales)}} so'm
+                    {{ formatPrice(obj.balance)}} so'm
                     <span>Balance</span>
                 </div>
             </div>
