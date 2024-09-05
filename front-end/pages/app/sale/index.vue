@@ -70,7 +70,6 @@ const savePayment = async () => {
       }
 
       const updatedSale = await response.json();
-      fetchSales()
       console.log(updatedSale);
     } catch (error) {
       console.error(error);
@@ -147,8 +146,8 @@ onMounted(() => {
     if (!isAuthenticated || isAuthenticated == "undefined" || isAuthenticated === null) {
         router.push('/login'); // Redirect to login if not authenticated
     }
-    nextTick(() =>{
-        fetchSales()
+    nextTick( async () =>{
+        await fetchSales()
     })
 });
 

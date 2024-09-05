@@ -8,6 +8,7 @@
           </svg>
         </button>
         <h2 class="text-lg font-semibold mb-4">Sotuv Qo'shish +</h2>
+        <p class="text-red-500 text-xs">{{ error }}</p>
         <form @submit.prevent="handleSubmit">
           <div class="mb-4">
             <label for="province" class="block text-sm font-medium text-gray-700">Viloyat</label>
@@ -37,10 +38,6 @@
             </select>
           </div>
           <div class="mb-4">
-            <label for="payment" class="block text-sm font-medium text-gray-700">To'lov</label>
-            <input type="number" id="payment" v-model="sale.payment" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"/>
-          </div>
-          <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">QR Code Scan</label>
             <div id="qr-reader-video"  class="qr-reader-container w-full h-48 border border-gray-300 rounded-lg mt-1"></div>
             <button type="button" @click="toggleScanner" class="bg-blue-500 text-white px-4 py-2 rounded mt-2">
@@ -66,8 +63,7 @@
   import { ref, onMounted, nextTick, onUnmounted, watch } from 'vue';
   import { Html5Qrcode } from 'html5-qrcode';
   import { useRouter } from 'vue-router';
-import { config } from "config"
-
+  import { config } from "config"
 const base = config.baseUrl
 const router = useRouter();
   const props = defineProps({
@@ -107,7 +103,7 @@ const router = useRouter();
       error.value =  await response.text()
       return; // Exit function if response is not OK
     }
-
+    
     const data = await response.json();
     provinces.value = data
   } catch (error) {
@@ -170,7 +166,7 @@ const handleSubmit = async () => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        payment: parseFloat(sale.value.payment),
+        payment: 0,
         debt: 0, // Assuming debt is not provided in the form and should be set to 0 or another default value
         date_added: new Date().toISOString().split('T')[0], // Use today's date for example
         shop_id: parseInt(sale.value.shop),
@@ -190,6 +186,10 @@ const handleSubmit = async () => {
         }))
     console.log(items)
       return; // Exit function if response is not OK
+    }
+
+    if (response.error){
+      error.value = await response.text()
     }
 
     const result = await response.json();
